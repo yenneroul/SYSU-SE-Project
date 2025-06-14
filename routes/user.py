@@ -9,7 +9,7 @@ user_bp = Blueprint('user', __name__)
 @login_required
 def profile(user_id):
     user = User.query.get_or_404(user_id)
-    posts = user.posts.order_by(Post.created_at.desc()).all()
+    posts = user.posts
     return render_template('profile.html', user=user, posts=posts)
 
 

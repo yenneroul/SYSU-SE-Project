@@ -19,7 +19,6 @@
             <div class="profile-stats">
                 <span>关注: {{ user.followed.count() }}</span>
                 <span>粉丝: {{ user.followers.count() }}</span>
-                <span>动态: {{ user.posts.count() }}</span>
             </div>
 
             {% if user.id == current_user.id %}

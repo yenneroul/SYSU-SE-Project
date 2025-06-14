@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}编辑资料 - 标签社交{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="edit-profile-container">
+        <h2>编辑个人资料</h2>
+        <form method="POST" class="edit-form">
+            <div class="form-group">
+                <label for="bio">个人简介:</label>
+                <textarea id="bio" name="bio" placeholder="介绍一下自己...">{{ current_user.bio or '' }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="avatar_url">头像链接:</label>
+                <input type="url" id="avatar_url" name="avatar_url"
+                       value="{{ current_user.avatar_url or '' }}"
+                       placeholder="https://example.com/avatar.jpg">
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">保存更改</button>
+                <a href="{{ url_for('user.profile', user_id=current_user.id) }}" class="btn-secondary">取消</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.edit-profile-container {
+    max-width: 500px;
+    margin: 0 auto;
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.edit-form .form-group {
+    margin-bottom: 20px;
+}
+
+.edit-form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.edit-form textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    resize: vertical;
+    min-height: 100px;
+    font-family: inherit;
+}
+
+.edit-form input[type="url"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.btn-secondary {
+    background: #95a5a6;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.3s;
+}
+
+.btn-secondary:hover {
+    background: #7f8c8d;
+}
+</style>
+{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1><a href="{{ url_for('index') }}">标签社交</a></h1>
+            {% if current_user.is_authenticated %}
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}">首页</a>
+                <a href="{{ url_for('discover') }}">发现</a>
+                <a href="{{ url_for('user.profile', user_id=current_user.id) }}">我的</a>
+                <a href="{{ url_for('auth.logout') }}">退出</a>
+            </div>
+            {% endif %}
+        </div>
+    </nav>
+
+    <main class="main-content">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for message in messages %}
+                        <div class="flash-message">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+    </main>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
