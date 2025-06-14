@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="profile-header">
+        <img src="{{ user.avatar_url or '/static/default-avatar.png' }}"
+             alt="头像" class="avatar-large">
+        <div class="profile-info">
+            <h2>{{ user.username }}</h2>
+            <div class="user-tags">
+                {% for tag in user.tags %}
+                    <span class="tag">{{ tag.name }}</span>
+                {% endfor %}
+            </div>
+            {% if user.bio %}
+                <p class="user-bio">{{ user.bio }}</p>
+            {% endif %}
+
+            <div class="profile-stats">
+                <span>关注: {{ user.followed.count() }}</span>
+                <span>粉丝: {{ user.followers.count() }}</span>
+                <span>动态: {{ user.posts.count() }}</span>
+            </div>
+
+            {% if user.id == current_user.id %}
+                <a href="{{ url_for('user.edit_profile') }}" class="btn-primary">编辑资料</a>
+            {% else %}
+                <button class="follow-btn" data-user-id="{{ user.id }}">
+                    {% if current_user.is_following(user) %}
+                        取消关注
+                    {% else %}
+                        关注
+                    {% endif %}
+                </button>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="user-posts">
+        <h3>{{ user.username }}的动态</h3>
+        {% if posts %}
+            {% for post in posts %}
+            <div class="post-card">
+                <div class="post-header">
+                    <img src="{{ post.author.avatar_url or '/static/default-avatar.png' }}"
+                         alt="头像" class="avatar">
+                    <div class="post-info">
+                        <h4>{{ post.author.username }}</h4>
+                        <p class="post-time">{{ post.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                    </div>
+                </div>
+
+                <div class="post-content">
+                    <p>{{ post.content }}</p>
+                    {% if post.image_url %}
+                        <img src="{{ post.image_url }}" alt="动态图片" class="post-image">
+                    {% endif %}
+                </div>
+
+                <div class="post-actions">
+                    <button class="like-btn" data-post-id="{{ post.id }}">
+                        ❤️ <span class="likes-count">{{ post.likes_count }}</span>
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p class="no-posts">暂无动态</p>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.profile-header {
+    display: flex;
+    align-items: center;
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.profile-info {
+    margin-left: 30px;
+    flex: 1;
+}
+
+.profile-info h2 {
+    margin-bottom: 15px;
+    color: #2c3e50;
+}
+
+.profile-stats {
+    margin: 15px 0;
+}
+
+.profile-stats span {
+    margin-right: 20px;
+    color: #7f8c8d;
+    font-weight: bold;
+}
+
+@media (max-width: 768px) {
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .profile-info {
+        margin-left: 0;
+        margin-top: 20px;
+    }
+}
+</style>
+{% endblock %}

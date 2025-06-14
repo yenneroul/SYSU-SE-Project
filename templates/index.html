@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <!-- 发布动态 -->
+    <div class="post-form">
+        <h3>发布动态</h3>
+        <form method="POST" action="{{ url_for('post.create_post') }}">
+            <textarea name="content" placeholder="分享你的想法..." required></textarea>
+            <input type="url" name="image_url" placeholder="图片链接 (可选)">
+            <button type="submit" class="btn-primary">发布</button>
+        </form>
+    </div>
+    
+    <!-- 动态列表 -->
+    <div class="posts-container">
+        {% if posts %}
+            {% for post in posts %}
+            <div class="post-card">
+                <div class="post-header">
+                    <img src="{{ post.author.avatar_url or '/static/default-avatar.png' }}" 
+                         alt="头像" class="avatar">
+                    <div class="post-info">
+                        <h4><a href="{{ url_for('user.profile', user_id=post.author.id) }}">
+                            {{ post.author.username }}
+                        </a></h4>
+                        <span class="post-tags">
+                            {% for tag in post.author.tags %}
+                                <span class="tag">{{ tag.name }}</span>
+                            {% endfor %}
+                        </span>
+                        <p class="post-time">{{ post.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                    </div>
+                </div>
+                
+                <div class="post-content">
+                    <p>{{ post.content }}</p>
+                    {% if post.image_url %}
+                        <img src="{{ post.image_url }}" alt="动态图片" class="post-image">
+                    {% endif %}
+                </div>
+                
+                <div class="post-actions">
+                    <button class="like-btn" data-post-id="{{ post.id }}">
+                        ❤️ <span class="likes-count">{{ post.likes_count }}</span>
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p class="no-posts">暂无动态，去关注一些用户吧！</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
