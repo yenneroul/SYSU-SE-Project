@@ -26,7 +26,9 @@ class User(UserMixin, db.Model):
     bio = db.Column(db.Text)
     avatar_url = db.Column(db.String(200), default='')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
+    gender = db.Column(db.String(10))  # New column for gender
+    contact_type = db.Column(db.String(20))  # New column for contact type (qq/wechat)
+    contact_account = db.Column(db.String(100))  # New column for contact account details
     # 关系
     tags = db.relationship('Tag', secondary=user_tags, lazy='subquery',
                            backref=db.backref('users', lazy=True))

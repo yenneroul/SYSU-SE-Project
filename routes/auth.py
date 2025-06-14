@@ -11,9 +11,12 @@ def register():
         username = request.form['username']
         email = request.form['email']
         password = request.form['password']
+        gender = request.form['gender'] # Get gender
+        contact_type = request.form['contact_type'] # Get contact type
+        contact_account = request.form['contact_account'] # Get contact account
         selected_tags = request.form.getlist('tags')
 
-        # 检查用户是否已存在
+        # Check if user already exists
         if User.query.filter_by(username=username).first():
             flash('用户名已存在')
             return render_template('register.html', tags=Tag.query.all())
@@ -22,11 +25,17 @@ def register():
             flash('邮箱已被注册')
             return render_template('register.html', tags=Tag.query.all())
 
-        # 创建用户
-        user = User(username=username, email=email)
+        # Create user
+        user = User(
+            username=username,
+            email=email,
+            gender=gender, # Assign gender
+            contact_type=contact_type, # Assign contact type
+            contact_account=contact_account # Assign contact account
+        )
         user.set_password(password)
 
-        # 添加选择的标签
+        # Add selected tags
         for tag_id in selected_tags:
             tag = Tag.query.get(int(tag_id))
             if tag:
@@ -36,7 +45,8 @@ def register():
         db.session.commit()
 
         login_user(user)
-        return redirect(url_for('index'))
+        flash('注册成功！')
+        return redirect(url_for('index')) # Assuming 'index' is your main page after login
 
     return render_template('register.html', tags=Tag.query.all())
 
