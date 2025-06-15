@@ -9,9 +9,8 @@ post_bp = Blueprint('post', __name__)
 @login_required
 def create_post():
     content = request.form['content']
-    image_url = request.form.get('image_url', '')
 
-    post = Post(content=content, image_url=image_url, user_id=current_user.id)
+    post = Post(content=content, user_id=current_user.id)
     db.session.add(post)
     db.session.commit()
 

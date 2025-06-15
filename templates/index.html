@@ -7,7 +7,6 @@
         <h3>发布动态</h3>
         <form method="POST" action="{{ url_for('post.create_post') }}">
             <textarea name="content" placeholder="分享你的想法..." required></textarea>
-            <input type="url" name="image_url" placeholder="图片链接 (可选)">
             <button type="submit" class="btn-primary">发布</button>
         </form>
     </div>
