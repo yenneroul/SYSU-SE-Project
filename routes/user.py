@@ -5,6 +5,8 @@ from models import db, User, Post, Tag
 import os
 import uuid
 
+from utils.user_vector import build_vocab, update_user_vector
+
 user_bp = Blueprint('user', __name__)
 
 def allowed_file(filename):
@@ -111,7 +113,12 @@ def edit_profile():
                 avatar_url = request.form.get('avatar_url', '').strip()
                 if avatar_url:
                     current_user.avatar_url = avatar_url
-            
+                    
+            # 自动更新用户画像向量（词袋模型）
+            all_users = User.query.all()
+            vocab = build_vocab(all_users)
+            update_user_vector(current_user, vocab)
+
             db.session.commit()
             flash('资料更新成功！')
             return redirect(url_for('user.profile', user_id=current_user.id))
@@ -123,3 +130,33 @@ def edit_profile():
 
     return render_template('edit_profile.html', preset_avatars=PRESET_AVATARS, all_tags=all_tags)
 
+@user_bp.route('/recommendations')
+@login_required
+def recommend_users():
+    from utils.user_vector import build_vocab, profile_to_vector, cosine_similarity
+    users = User.query.all()
+    vocab = build_vocab(users)
+    target_vector = profile_to_vector(current_user, vocab)
+
+    # 缓存词汇表以提高性能
+    if not hasattr(current_app, 'user_vocab'):
+        current_app.user_vocab = build_vocab(users)
+    vocab = current_app.user_vocab
+
+    scored_users = []
+    for user in users:
+        if user.id == current_user.id or not user.vector:
+            continue
+        try:
+            user_vec = list(map(int, user.vector.split(',')))
+            sim = cosine_similarity(target_vector, user_vec)
+            scored_users.append((user, sim))
+        except (ValueError, IndexError):
+            # 处理向量格式错误或长度不匹配的情况
+            continue
+
+    # 按相似度排序并保留分数
+    scored_users.sort(key=lambda x: x[1], reverse=True)
+    users_with_similarity = scored_users[:10]
+
+    return render_template('recommendations.html', users_with_similarity=users_with_similarity)

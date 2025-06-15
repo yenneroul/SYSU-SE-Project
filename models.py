@@ -65,7 +65,10 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128))
     bio = db.Column(db.Text)
     avatar_url = db.Column(db.String(200), default='/static/default-avatar.svg')
+    # 添加向量字段
+    vector = db.Column(db.Text, default='')  # 存储词向量（逗号分隔字符串）
 
+    # 关系字段：tags = relationship('Tag', secondary=user_tags, backref='users')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     gender = db.Column(db.String(10))  # New column for gender
     contact_type = db.Column(db.String(20))  # New column for contact type (qq/wechat)
@@ -93,6 +96,10 @@ class User(UserMixin, db.Model):
                                secondaryjoin=(follows.c.followed_id == id),
                                backref=db.backref('followers', lazy='dynamic'),
                                lazy='dynamic')
+    
+    
+
+    
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

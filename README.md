@@ -46,8 +46,11 @@ SYSU-SE-Project/
 │   ├── login.html        # 登录页面模板
 │   ├── profile.html      # 个人资料页面模板
 │   └── register.html     # 注册页面模板
+├── utils/
+│   └── user_vector.py     # 用户画像处理相关函数（新文件）
 ├── .gitignore            # Git 忽略文件，列出需要忽略的文件
 ├── app.py                # 主应用文件，定义 Flask 应用实例并注册蓝图
 ├── config.py             # 配置文件，包含数据库连接、密钥等设置
 └── models.py             # 模型定义文件，使用 SQLAlchemy 定义数据库模型
+
 ```
