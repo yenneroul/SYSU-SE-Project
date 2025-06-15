@@ -25,10 +25,17 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128))
     bio = db.Column(db.Text)
     avatar_url = db.Column(db.String(200), default='')
+
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     gender = db.Column(db.String(10))  # New column for gender
     contact_type = db.Column(db.String(20))  # New column for contact type (qq/wechat)
     contact_account = db.Column(db.String(100))  # New column for contact account details
+    phone = db.Column(db.String(20), nullable=True)
+    qq = db.Column(db.String(20), nullable=True)
+    wechat = db.Column(db.String(50), nullable=True)
+    gender = db.Column(db.String(10), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
     # 关系
     tags = db.relationship('Tag', secondary=user_tags, lazy='subquery',
                            backref=db.backref('users', lazy=True))

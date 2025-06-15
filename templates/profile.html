@@ -16,6 +16,33 @@
                 <p class="user-bio">{{ user.bio }}</p>
             {% endif %}
 
+
+            {% if user.gender %}
+                <p class="user-detail">性别: 
+                    {% if user.gender == 'Male' %}
+                        男
+                    {% elif user.gender == 'Female' %}
+                        女
+                    {% elif user.gender == 'Other' %}
+                        其他
+                    {% else %}
+                        不愿透露
+                    {% endif %}
+                </p>
+            {% endif %}
+
+            {% if user.phone %}
+                <p class="user-detail">电话: {{ user.phone }}</p>
+            {% endif %}
+
+            {% if user.qq %}
+                <p class="user-detail">QQ: {{ user.qq }}</p>
+            {% endif %}
+
+            {% if user.wechat %}
+                <p class="user-detail">微信: {{ user.wechat }}</p>
+            {% endif %}
+
             <div class="profile-stats">
                 <span>关注: {{ user.followed.count() }}</span>
                 <span>粉丝: {{ user.followers.count() }}</span>
@@ -40,9 +67,8 @@
         {% if posts %}
             {% for post in posts %}
             <div class="post-card">
-                <div class="post-header">
-                    <img src="{{ post.author.avatar_url or '/static/default-avatar.png' }}"
-                         alt="头像" class="avatar">
+                <div class="post-header">                    <img src="{{ post.author.avatar_url or '/static/default-avatar.png' }}"
+                         alt="头像" class="avatar-medium">
                     <div class="post-info">
                         <h4>{{ post.author.username }}</h4>
                         <p class="post-time">{{ post.created_at.strftime('%Y-%m-%d %H:%M') }}</p>

@@ -1,12 +1,26 @@
 from flask import Flask, render_template, redirect, url_for
 from flask_login import LoginManager, current_user
 from models import db, User, Tag, Post
-from config import Config
-
+import os
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_object(Config)
+    app.config['SECRET_KEY'] = 'your-secret-key-here'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///social_app.db'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    
+    # 文件上传配置
+    app.config['UPLOAD_FOLDER'] = 'static/avatars/uploads'
+    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB
+
+    # 创建必要的目录
+    upload_dir = app.config['UPLOAD_FOLDER']
+    if not os.path.exists(upload_dir):
+        os.makedirs(upload_dir)
+    
+    preset_dir = 'static/avatars/presets'
+    if not os.path.exists(preset_dir):
+        os.makedirs(preset_dir)
 
     # 初始化扩展
     db.init_app(app)
@@ -54,14 +68,17 @@ def create_app():
         if current_user.is_authenticated:
             matching_users = current_user.get_matching_users()
             return render_template('discover.html', users=matching_users)
-        return redirect(url_for('auth.login'))
-
-    # 创建数据库表
+        return redirect(url_for('auth.login'))    # 创建数据库表
     with app.app_context():
         db.create_all()
         # 初始化标签数据
+        USER_TAGS = [
+            '音乐爱好者', '电影迷', '读书达人', '运动健将', '美食家',
+            '旅行者', '摄影师', '程序员', '设计师', '学生',
+            '创业者', '艺术家', '宠物爱好者', '游戏玩家', '健身达人'
+        ]
         if Tag.query.count() == 0:
-            for tag_name in Config.USER_TAGS:
+            for tag_name in USER_TAGS:
                 tag = Tag(name=tag_name)
                 db.session.add(tag)
             db.session.commit()

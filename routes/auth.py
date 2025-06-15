@@ -4,19 +4,18 @@ from models import db, User, Tag
 
 auth_bp = Blueprint('auth', __name__)
 
-
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         username = request.form['username']
         email = request.form['email']
         password = request.form['password']
-        gender = request.form['gender'] # Get gender
-        contact_type = request.form['contact_type'] # Get contact type
-        contact_account = request.form['contact_account'] # Get contact account
+        gender = request.form.get('gender')  # Get gender, using .get() for safety
+        contact_type = request.form.get('contact_type')  # Get contact type
+        contact_account = request.form.get('contact_account')  # Get contact account
         selected_tags = request.form.getlist('tags')
 
-        # Check if user already exists
+        # 检查用户是否已存在
         if User.query.filter_by(username=username).first():
             flash('用户名已存在')
             return render_template('register.html', tags=Tag.query.all())
@@ -25,17 +24,17 @@ def register():
             flash('邮箱已被注册')
             return render_template('register.html', tags=Tag.query.all())
 
-        # Create user
+        # 创建用户
         user = User(
             username=username,
             email=email,
-            gender=gender, # Assign gender
-            contact_type=contact_type, # Assign contact type
-            contact_account=contact_account # Assign contact account
+            gender=gender,
+            contact_type=contact_type,
+            contact_account=contact_account
         )
         user.set_password(password)
 
-        # Add selected tags
+        # 添加选择的标签
         for tag_id in selected_tags:
             tag = Tag.query.get(int(tag_id))
             if tag:
@@ -46,10 +45,9 @@ def register():
 
         login_user(user)
         flash('注册成功！')
-        return redirect(url_for('index')) # Assuming 'index' is your main page after login
+        return redirect(url_for('index'))
 
     return render_template('register.html', tags=Tag.query.all())
-
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -65,7 +63,6 @@ def login():
             flash('用户名或密码错误')
 
     return render_template('login.html')
-
 
 @auth_bp.route('/logout')
 def logout():

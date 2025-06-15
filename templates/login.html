@@ -13,7 +13,10 @@
 
         <div class="form-group">
             <label for="password">密码:</label>
-            <input type="password" id="password" name="password" required>
+            <div class="password-input-container">
+                <input type="password" id="password" name="password" required autocomplete="off">
+                <span class="toggle-password" id="togglePassword"></span>
+            </div>
         </div>
 
         <button type="submit" class="btn-primary">登录</button>
