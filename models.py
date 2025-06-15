@@ -75,6 +75,12 @@ class User(UserMixin, db.Model):
     wechat = db.Column(db.String(50), nullable=True)
     gender = db.Column(db.String(10), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # 联系方式显示设置
+    show_email = db.Column(db.Boolean, default=True)
+    show_qq = db.Column(db.Boolean, default=True)
+    show_wechat = db.Column(db.Boolean, default=True)
+    show_phone = db.Column(db.Boolean, default=True)
     messages_sent = db.relationship('Message', foreign_keys='Message.sender_id', backref='sender', lazy='dynamic')
     # 关系
     tags = db.relationship('Tag', secondary=user_tags, lazy='subquery',

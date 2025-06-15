@@ -25,17 +25,46 @@
 
             <div class="form-group">
                 <label for="phone">电话:</label>
-                <input type="text" id="phone" name="phone" value="{{ current_user.phone or '' }}">
+                <div class="contact-input-container">
+                    <input type="text" id="phone" name="phone" value="{{ current_user.phone or '' }}">
+                    <label class="show-option">
+                        <input type="checkbox" name="show_phone" {% if current_user.show_phone %}checked{% endif %}>
+                        <span>公开显示</span>
+                    </label>
+                </div>
             </div>
 
             <div class="form-group">
                 <label for="qq">QQ:</label>
-                <input type="text" id="qq" name="qq" value="{{ current_user.qq or '' }}">
+                <div class="contact-input-container">
+                    <input type="text" id="qq" name="qq" value="{{ current_user.qq or '' }}">
+                    <label class="show-option">
+                        <input type="checkbox" name="show_qq" {% if current_user.show_qq %}checked{% endif %}>
+                        <span>公开显示</span>
+                    </label>
+                </div>
             </div>
 
             <div class="form-group">
                 <label for="wechat">微信:</label>
-                <input type="text" id="wechat" name="wechat" value="{{ current_user.wechat or '' }}">
+                <div class="contact-input-container">
+                    <input type="text" id="wechat" name="wechat" value="{{ current_user.wechat or '' }}">
+                    <label class="show-option">
+                        <input type="checkbox" name="show_wechat" {% if current_user.show_wechat %}checked{% endif %}>
+                        <span>公开显示</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">邮箱:</label>
+                <div class="contact-input-container">
+                    <input type="email" id="email" name="email" value="{{ current_user.email or '' }}">
+                    <label class="show-option">
+                        <input type="checkbox" name="show_email" {% if current_user.show_email %}checked{% endif %}>
+                        <span>公开显示</span>
+                    </label>
+                </div>
             </div>
 
             <div class="form-group">
@@ -249,6 +278,24 @@
     padding: 15px;
     background: white;
     border-radius: 5px;
+}
+
+.contact-input-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.show-option {
+    display: flex;
+    align-items: center;
+    margin-top: 8px;
+    font-weight: normal;
+    color: #555;
+    font-size: 14px;
+}
+
+.show-option input[type="checkbox"] {
+    margin-right: 8px;
 }
 
 .upload-hint {

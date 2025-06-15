@@ -44,11 +44,18 @@ def edit_profile():
             # 更新个人简介
             current_user.bio = request.form.get('bio', '')
             
-            # 更新联系方式（电话、QQ、微信）和性别
+            # 更新联系方式（电话、QQ、微信、邮箱）和性别
             current_user.phone = request.form.get('phone', '').strip()
             current_user.qq = request.form.get('qq', '').strip()
             current_user.wechat = request.form.get('wechat', '').strip()
+            current_user.email = request.form.get('email', '').strip() or None  # 空字符串转为None
             current_user.gender = request.form.get('gender') # 单选按钮，直接获取值
+            
+            # 更新联系方式显示设置
+            current_user.show_phone = 'show_phone' in request.form
+            current_user.show_qq = 'show_qq' in request.form
+            current_user.show_wechat = 'show_wechat' in request.form
+            current_user.show_email = 'show_email' in request.form
 
             # 新增：更新标签
             selected_tag_ids = request.form.getlist('tags') # 获取所有选中的标签ID列表

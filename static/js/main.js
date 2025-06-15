@@ -61,8 +61,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // 标签选择验证（注册页面）
     const tagCheckboxes = document.querySelectorAll('input[name="tags"]');
     const submitButton = document.querySelector('button[type="submit"]');
+    
+    // 检查当前是否在注册页面
+    const isRegisterPage = window.location.pathname.includes('/auth/register');
 
-    if (tagCheckboxes.length > 0 && submitButton) {
+    if (tagCheckboxes.length > 0 && submitButton && isRegisterPage) {
         tagCheckboxes.forEach(checkbox => {
             checkbox.addEventListener('change', function() {
                 const checkedTags = document.querySelectorAll('input[name="tags"]:checked');
@@ -76,6 +79,29 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
+        // 初始检查
+        const initialChecked = document.querySelectorAll('input[name="tags"]:checked');
+        if (initialChecked.length < 1) {
+            submitButton.disabled = true;
+            submitButton.textContent = `请至少选择1个标签 (已选${initialChecked.length}个)`;
+        }
+    } 
+    // 编辑资料页面的标签处理
+    else if (tagCheckboxes.length > 0 && submitButton && window.location.pathname.includes('/user/edit_profile')) {
+        // 为编辑资料页面的标签添加事件监听器，但不改变按钮文本
+        tagCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const checkedTags = document.querySelectorAll('input[name="tags"]:checked');
+                if (checkedTags.length < 1) {
+                    submitButton.disabled = true;
+                    submitButton.textContent = `请至少选择1个标签 (已选${checkedTags.length}个)`;
+                } else {
+                    submitButton.disabled = false;
+                    submitButton.textContent = '保存更改';
+                }
+            });
+        });
+        
         // 初始检查
         const initialChecked = document.querySelectorAll('input[name="tags"]:checked');
         if (initialChecked.length < 1) {

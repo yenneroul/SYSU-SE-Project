@@ -34,37 +34,34 @@
                 </p>
             {% endif %}
 
-            <!-- 联系方式：只有在互相关注或查看自己资料时才显示 -->
-            {% if user.id == current_user.id or current_user.is_mutual_following(user) %}
-                <div class="contact-info">
-                    <h4 class="contact-title">
-                        {% if user.id == current_user.id %}
-                            我的联系方式
-                        {% else %}
-                            联系方式（互相关注可见）
-                        {% endif %}
-                    </h4>
-                    {% if user.phone %}
-                        <p class="user-detail contact-detail">📞 电话: {{ user.phone }}</p>
+            <!-- 联系方式：对所有用户公开（根据显示设置） -->
+            <div class="contact-info">
+                <h4 class="contact-title">
+                    {% if user.id == current_user.id %}
+                        我的联系方式
+                    {% else %}
+                        联系方式
                     {% endif %}
-                    {% if user.qq %}
-                        <p class="user-detail contact-detail">🐧 QQ: {{ user.qq }}</p>
-                    {% endif %}
-                    {% if user.wechat %}
-                        <p class="user-detail contact-detail">💬 微信: {{ user.wechat }}</p>
-                    {% endif %}
-                    {% if user.email %}
-                        <p class="user-detail contact-detail">📧 邮箱: {{ user.email }}</p>
-                    {% endif %}
-                    {% if not (user.phone or user.qq or user.wechat or user.email) %}
-                        <p class="no-contact">暂未设置联系方式</p>
-                    {% endif %}
-                </div>
-            {% elif user.id != current_user.id %}
-                <div class="contact-hint">
-                    <p class="hint-text">💡 互相关注后可查看联系方式</p>
-                </div>
-            {% endif %}
+                </h4>
+                {% if user.phone and (user.id == current_user.id or user.show_phone) %}
+                    <p class="user-detail contact-detail">📞 电话: {{ user.phone }}</p>
+                {% endif %}
+                {% if user.qq and (user.id == current_user.id or user.show_qq) %}
+                    <p class="user-detail contact-detail">🐧 QQ: {{ user.qq }}</p>
+                {% endif %}
+                {% if user.wechat and (user.id == current_user.id or user.show_wechat) %}
+                    <p class="user-detail contact-detail">💬 微信: {{ user.wechat }}</p>
+                {% endif %}
+                {% if user.email and (user.id == current_user.id or user.show_email) %}
+                    <p class="user-detail contact-detail">📧 邮箱: {{ user.email }}</p>
+                {% endif %}
+                {% if not ((user.phone and (user.id == current_user.id or user.show_phone)) or 
+                           (user.qq and (user.id == current_user.id or user.show_qq)) or 
+                           (user.wechat and (user.id == current_user.id or user.show_wechat)) or 
+                           (user.email and (user.id == current_user.id or user.show_email))) %}
+                    <p class="no-contact">暂未设置联系方式或联系方式未公开</p>
+                {% endif %}
+            </div>
 <div class="profile-stats">
     <a href="{{ url_for('follow.following', user_id=user.id) }}" class="stat-link">
         <span>关注: {{ user.followed.count() }}</span>
