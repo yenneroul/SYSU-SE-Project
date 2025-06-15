@@ -24,6 +24,7 @@
             </div>
 
             <div class="form-group">
+<<<<<<< HEAD
                 <label for="phone">电话:</label>
                 <input type="text" id="phone" name="phone" value="{{ current_user.phone or '' }}">
             </div>
@@ -165,13 +166,17 @@
     border-radius: 5px;
     box-sizing: border-box;
     font-family: inherit;
+    box-sizing: border-box;
 }
 
+<<<<<<< HEAD
 .edit-form textarea {
     resize: vertical;
     min-height: 100px;
 }
 
+.avatar-options {
+=======
 .avatar-options {
     border: 1px solid #ddd;
     border-radius: 8px;
@@ -264,6 +269,105 @@
     margin-top: 10px;
 }
 
+.url-section input[type="url"] {
+    width: 100%;
+    padding: 10px;
+>>>>>>> 343ead04b442df8d17d97693184c6a5b966fdb60
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    background: #f9f9f9;
+}
+
+.current-avatar {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.avatar-preview {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid #3498db;
+    object-fit: cover;
+}
+
+.avatar-choice {
+    margin: 15px 0;
+}
+
+.avatar-choice input[type="radio"] {
+    margin-right: 8px;
+}
+
+.avatar-choice label {
+    font-weight: normal;
+    cursor: pointer;
+}
+
+.preset-avatars {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    gap: 10px;
+    margin: 15px 0;
+    padding: 15px;
+    background: white;
+    border-radius: 5px;
+<<<<<<< HEAD
+    min-height: 80px;
+}
+
+.preset-avatar-option {
+    cursor: pointer;
+    text-align: center;
+}
+
+.preset-avatar-option input[type="radio"] {
+    display: none;
+}
+
+.preset-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    transition: all 0.3s;
+    object-fit: cover;
+}
+
+.preset-avatar-option input[type="radio"]:checked + .preset-avatar {
+    border-color: #3498db;
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(52, 152, 219, 0.5);
+}
+
+.preset-avatar:hover {
+    transform: scale(1.05);
+}
+
+.upload-section, .url-section {
+    margin: 15px 0;
+    padding: 15px;
+    background: white;
+    border-radius: 5px;
+}
+
+.upload-hint {
+    font-size: 12px;
+    color: #7f8c8d;
+    margin-top: 5px;
+}
+
+.upload-preview img {
+    max-width: 100px;
+    max-height: 100px;
+    border-radius: 5px;
+    margin-top: 10px;
+=======
+    box-sizing: border-box;
+>>>>>>> 343ead04b442df8d17d97693184c6a5b966fdb60
+}
+
 .form-actions {
     display: flex;
     gap: 15px;
@@ -304,7 +408,11 @@
     .preset-avatars {
         grid-template-columns: repeat(4, 1fr);
     }
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 343ead04b442df8d17d97693184c6a5b966fdb60
     .edit-profile-container {
         margin: 10px;
         padding: 20px;

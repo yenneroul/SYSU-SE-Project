@@ -5,6 +5,11 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'your-secret-key-here'
     SQLALCHEMY_DATABASE_URI = 'sqlite:///social_app.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    
+    # 文件上传配置
+    UPLOAD_FOLDER = 'static/avatars/uploads'
+    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max file size
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
     
     # 文件上传配置

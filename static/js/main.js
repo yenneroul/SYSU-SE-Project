@@ -67,15 +67,9 @@ document.addEventListener('DOMContentLoaded', function() {
         tagCheckboxes.forEach(checkbox => {
             checkbox.addEventListener('change', function() {
                 const checkedTags = document.querySelectorAll('input[name="tags"]:checked');
-<<<<<<< HEAD
                 if (checkedTags.length < 1) {
                     submitButton.disabled = true;
                     submitButton.textContent = `请至少选择1个标签 (已选${checkedTags.length}个)`;
-=======
-                if (checkedTags.length < 3) {
-                    submitButton.disabled = true;
-                    submitButton.textContent = `请至少选择3个标签 (已选${checkedTags.length}个)`;
->>>>>>> e5735be3d1486f5e01a659050e799227020cf2e0
                 } else {
                     submitButton.disabled = false;
                     submitButton.textContent = '注册';
@@ -85,15 +79,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // 初始检查
         const initialChecked = document.querySelectorAll('input[name="tags"]:checked');
-<<<<<<< HEAD
         if (initialChecked.length < 1) {
             submitButton.disabled = true;
             submitButton.textContent = `请至少选择1个标签 (已选${initialChecked.length}个)`;
-=======
-        if (initialChecked.length < 3) {
-            submitButton.disabled = true;
-            submitButton.textContent = `请至少选择3个标签 (已选${initialChecked.length}个)`;
->>>>>>> e5735be3d1486f5e01a659050e799227020cf2e0
         }
     }
 
@@ -134,8 +122,6 @@ document.addEventListener('DOMContentLoaded', function() {
             this.style.height = this.scrollHeight + 'px';
         });
     });
-<<<<<<< HEAD
-=======
 
     // 密码显示/隐藏功能
     const togglePassword = document.getElementById('togglePassword');
@@ -150,7 +136,6 @@ document.addEventListener('DOMContentLoaded', function() {
             this.classList.toggle('hidden');
         });
     }
->>>>>>> e5735be3d1486f5e01a659050e799227020cf2e0
 });
 
 // 工具函数：显示提示消息

@@ -36,6 +36,7 @@ class User(UserMixin, db.Model):
     gender = db.Column(db.String(10), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+
     # 关系
     tags = db.relationship('Tag', secondary=user_tags, lazy='subquery',
                            backref=db.backref('users', lazy=True))
