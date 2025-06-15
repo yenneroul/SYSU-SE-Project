@@ -15,86 +15,39 @@ TagMatch 是一个基于网页的社交网络平台，旨在通过共享兴趣�
 
 ##项目结构
 
-/routes
-
-__init__.py: 初始化 routes 包，使其可被 Python 识别为模块。
 
 
-
-auth.py: 包含用户认证相关的路由，例如登录、注册、退出等功能。
-
-
-
-follow.py: 管理用户关注或粉丝相关的路由。
-
-
-
-post.py: 处理帖子相关的路由，如创建、编辑或删除帖子。
-
-
-
-user.py: 管理用户个人资料或用户相关操作的路由。
-
-
-
-/static
-
-
-
-
-
-用于存放静态文件（如 CSS、JavaScript、图片等）
-
-
-
-templates
-
-
-
-
-
-base.html: 主模板文件，定义网站的通用布局，其他模板继承此文件。
-
-
-
-discover.html: 发现页面模板，用于推荐发现功能。
-
-
-
-edit_profile.html: 编辑个人资料的模板。
-
-
-
-index.html: 主页或默认页面的模板。
-
-
-
-login.html: 登录页面的模板。
-
-
-
-profile.html: 用户个人资料页面的模板。
-
-
-
-register.html: 注册页面的模板。
-
-
-
-app.py: 主应用文件，定义 Flask 框架的应用实例并启动服务。
-
-
-
-config.py: 包含配置文件，如数据库设置、密钥等。
-
-
-
-models.py: 定义数据库模型或数据结构（如 ORM 中的表定义）。
-
-
-
-README.md: 项目说明文件，通常包含安装和使用指南。
-
-
-
-requirements.txt: 列出项目依赖的 Python 库，便于环境配置。
+```
+SYSU-SE-Project/
+├── .vscode/              # VSCode 配置文件目录，包含工作区设置和调试配置
+├── instance/             # 实例特定配置目录，用于存储数据库或日志等文件
+├── routes/               # 路由模块目录，包含应用程序的路由逻辑
+│   ├── __init__.py       # 路由包初始化文件
+│   ├── auth.py           # 认证相关路由（登录、注册等）
+│   ├── follow.py         # 关注相关路由（关注/取消关注）
+│   ├── post.py           # 帖子相关路由（创建、点赞等）
+│   └── user.py           # 用户相关路由（个人资料、关注列表等）
+├── static/               # 静态文件目录，存放前端资源
+│   ├── avatars/          # 头像文件目录，包含预设和上传的头像
+│   ├── css/              # CSS 样式表目录，用于页面样式设计
+│   ├── images/           # 图片资源目录
+│   └── js/               # JavaScript 文件目录
+│       ├── main.js       # 主 JavaScript 文件，包含通用功能
+│       └── register.js   # 注册页面专用 JavaScript 文件
+│   ├── default-avatar.png  # 默认头像 PNG 文件
+│   └── default-avatar.svg  # 默认头像 SVG 文件
+├── templates/            # 模板文件目录，存放 Jinja2 模板
+│   ├── base.html         # 基础模板，其他页面继承的母版
+│   ├── discover.html     # 发现页面模板，展示推荐内容
+│   ├── edit_profile.html # 编辑个人资料页面模板
+│   ├── followers.html    # 粉丝列表页面模板
+│   ├── following.html    # 关注列表页面模板
+│   ├── index.html        # 主页模板
+│   ├── login.html        # 登录页面模板
+│   ├── profile.html      # 个人资料页面模板
+│   └── register.html     # 注册页面模板
+├── .gitignore            # Git 忽略文件，列出需要忽略的文件
+├── app.py                # 主应用文件，定义 Flask 应用实例并注册蓝图
+├── config.py             # 配置文件，包含数据库连接、密钥等设置
+└── models.py             # 模型定义文件，使用 SQLAlchemy 定义数据库模型
+```
