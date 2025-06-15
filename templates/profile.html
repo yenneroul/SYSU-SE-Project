@@ -4,8 +4,7 @@
 <div class="container">
     <div class="profile-header">
         <img src="{{ user.avatar_url or '/static/default-avatar.png' }}"
-             alt="头像" class="avatar-large">
-        <div class="profile-info">
+             alt="头像" class="avatar-large">        <div class="profile-info">
             <h2>{{ user.username }}</h2>
             <div class="user-tags">
                 {% for tag in user.tags %}
@@ -16,7 +15,7 @@
                 <p class="user-bio">{{ user.bio }}</p>
             {% endif %}
 
-
+            <!-- 基本信息：性别总是可见 -->
             {% if user.gender %}
                 <p class="user-detail">性别:
                     {% if user.gender == 'Male' %}
@@ -31,16 +30,36 @@
                 </p>
             {% endif %}
 
-            {% if user.phone %}
-                <p class="user-detail">电话: {{ user.phone }}</p>
-            {% endif %}
-
-            {% if user.qq %}
-                <p class="user-detail">QQ: {{ user.qq }}</p>
-            {% endif %}
-
-            {% if user.wechat %}
-                <p class="user-detail">微信: {{ user.wechat }}</p>
+            <!-- 联系方式：只有在互相关注或查看自己资料时才显示 -->
+            {% if user.id == current_user.id or current_user.is_mutual_following(user) %}
+                <div class="contact-info">
+                    <h4 class="contact-title">
+                        {% if user.id == current_user.id %}
+                            我的联系方式
+                        {% else %}
+                            联系方式（互相关注可见）
+                        {% endif %}
+                    </h4>
+                    {% if user.phone %}
+                        <p class="user-detail contact-detail">📞 电话: {{ user.phone }}</p>
+                    {% endif %}
+                    {% if user.qq %}
+                        <p class="user-detail contact-detail">🐧 QQ: {{ user.qq }}</p>
+                    {% endif %}
+                    {% if user.wechat %}
+                        <p class="user-detail contact-detail">💬 微信: {{ user.wechat }}</p>
+                    {% endif %}
+                    {% if user.email %}
+                        <p class="user-detail contact-detail">📧 邮箱: {{ user.email }}</p>
+                    {% endif %}
+                    {% if not (user.phone or user.qq or user.wechat or user.email) %}
+                        <p class="no-contact">暂未设置联系方式</p>
+                    {% endif %}
+                </div>
+            {% elif user.id != current_user.id %}
+                <div class="contact-hint">
+                    <p class="hint-text">💡 互相关注后可查看联系方式</p>
+                </div>
             {% endif %}
 <div class="profile-stats">
     <a href="{{ url_for('follow.following', user_id=user.id) }}" class="stat-link">
@@ -69,11 +88,10 @@
         <h3>{{ user.username }}的动态</h3>
         {% if posts %}
             {% for post in posts %}
-            <div class="post-card">
-                <div class="post-header">                    <img src="{{ post.author.avatar_url or '/static/default-avatar.png' }}"
+            <div class="post-card">                <div class="post-header">                    <img src="{{ post.author.avatar_url or '/static/default-avatar.png' }}"
                          alt="头像" class="avatar-medium">
                     <div class="post-info">
-                        <h4>{{ post.author.username }}</h4>
+                        <h4><a href="{{ url_for('user.profile', user_id=post.author.id) }}" class="username-link">{{ post.author.username }}</a></h4>
                         <p class="post-time">{{ post.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
                     </div>
                 </div>
@@ -127,6 +145,61 @@
     margin-right: 20px;
     color: #7f8c8d;
     font-weight: bold;
+}
+
+/* 联系方式样式 */
+.contact-info {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #3498db;
+}
+
+.contact-title {
+    margin: 0 0 10px 0;
+    color: #2c3e50;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.contact-detail {
+    margin: 8px 0;
+    color: #34495e;
+    font-size: 14px;
+}
+
+.contact-hint {
+    margin-top: 20px;
+    padding: 15px;
+    background: #fff3cd;
+    border-radius: 8px;
+    border-left: 4px solid #ffc107;
+}
+
+.hint-text {
+    margin: 0;
+    color: #856404;
+    font-size: 14px;
+    font-style: italic;
+}
+
+.no-contact {
+    color: #6c757d;
+    font-style: italic;
+    margin: 0;
+}
+
+/* 用户名链接样式 */
+.username-link {
+    color: #3498db;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.username-link:hover {
+    color: #2980b9;
+    text-decoration: underline;
 }
 
 @media (max-width: 768px) {

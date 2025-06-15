@@ -65,6 +65,10 @@ class User(UserMixin, db.Model):
     def is_following(self, user):
         return self.followed.filter(follows.c.followed_id == user.id).count() > 0
 
+    def is_mutual_following(self, user):
+        """检查是否互相关注"""
+        return self.is_following(user) and user.is_following(self)
+
     def get_matching_users(self, limit=10):
         """基于标签匹配推荐用户"""
         if not self.tags:
