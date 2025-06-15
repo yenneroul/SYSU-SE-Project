@@ -1,6 +1,9 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from flask_login import login_user, logout_user, current_user
 from models import db, User, Tag
+from werkzeug.utils import secure_filename
+import os
+import uuid
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -14,7 +17,7 @@ def register():
         contact_type = request.form.get('contact_type')
         contact_account = request.form.get('contact_account')
         selected_tags = request.form.getlist('tags')
-        avatar_choice = request.form.get('avatar_choice', 'default')
+        avatar_type = request.form.get('avatar_type', 'default')
 
         # 检查用户是否已存在
         if User.query.filter_by(username=username).first():
@@ -28,9 +31,41 @@ def register():
 
         # 处理头像选择
         avatar_url = '/static/default-avatar.svg'  # 默认头像
-        if avatar_choice.startswith('preset_'):
-            avatar_num = avatar_choice.split('_')[1]
-            avatar_url = f'/static/avatars/presets/avatar{avatar_num}.svg'
+        
+        if avatar_type == 'preset':
+            preset_avatar = request.form.get('preset_avatar')
+            if preset_avatar and preset_avatar.startswith('/static/avatars/presets/'):
+                avatar_url = preset_avatar
+                
+        elif avatar_type == 'upload':
+            # 处理文件上传
+            if 'avatar_file' in request.files:
+                file = request.files['avatar_file']
+                if file and file.filename != '':
+                    # 检查文件类型
+                    allowed_extensions = {'png', 'jpg', 'jpeg', 'gif'}
+                    file_ext = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else ''
+                    
+                    if file_ext in allowed_extensions:
+                        # 生成唯一文件名
+                        filename = secure_filename(file.filename)
+                        unique_filename = str(uuid.uuid4()) + '.' + file_ext
+                        
+                        # 确保上传目录存在
+                        upload_dir = 'static/avatars/uploads'
+                        if not os.path.exists(upload_dir):
+                            os.makedirs(upload_dir)
+                        
+                        file_path = os.path.join(upload_dir, unique_filename)
+                        file.save(file_path)
+                        
+                        avatar_url = '/' + upload_dir + '/' + unique_filename
+        
+        elif avatar_type == 'url':
+            # 使用URL链接
+            avatar_url_input = request.form.get('avatar_url', '').strip()
+            if avatar_url_input:
+                avatar_url = avatar_url_input
 
         # 创建用户，如果邮箱为空则设为None
         user = User(

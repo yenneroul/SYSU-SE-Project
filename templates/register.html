@@ -5,7 +5,7 @@
 {% block content %}
 <div class="auth-container">
     <h2>注册账号</h2>
-    <form method="POST" class="auth-form">
+    <form method="POST" class="auth-form" enctype="multipart/form-data">
         <div class="form-group">
             <label for="username">用户名:</label>
             <input type="text" id="username" name="username" required>
@@ -43,24 +43,52 @@
             <input type="text" id="contact_account" name="contact_account" placeholder="请输入QQ号或微信号" required>
         </div>        <div class="form-group">
             <label>选择头像 (可选，不选则使用默认头像):</label>
-            <div class="avatar-selection">
-                <div class="avatar-option">
-                    <input type="radio" id="default-avatar" name="avatar_choice" value="default" checked>
-                    <label for="default-avatar">
+            <div class="avatar-options">
+                <!-- 默认头像选择 -->
+                <div class="avatar-choice">
+                    <input type="radio" id="default_choice" name="avatar_type" value="default" checked>
+                    <label for="default_choice">使用默认头像</label>
+                    <div class="default-avatar-preview">
                         <img src="/static/default-avatar.svg" alt="默认头像" class="avatar-preview">
-                        <span>默认头像</span>
-                    </label>
+                    </div>
                 </div>
                 
-                <div class="preset-avatars">
+                <!-- 预设头像选择 -->
+                <div class="avatar-choice">
+                    <input type="radio" id="preset_choice" name="avatar_type" value="preset">
+                    <label for="preset_choice">选择预设头像</label>
+                </div>
+
+                <div class="preset-avatars" id="preset-avatars" style="display: none;">
                     {% for i in range(1, 9) %}
-                    <div class="avatar-option">
-                        <input type="radio" id="preset-{{ i }}" name="avatar_choice" value="preset_{{ i }}">
-                        <label for="preset-{{ i }}">
-                            <img src="/static/avatars/presets/avatar{{ i }}.svg" alt="预设头像{{ i }}" class="avatar-preview">
-                        </label>
-                    </div>
+                    <label class="preset-avatar-option">
+                        <input type="radio" name="preset_avatar" value="/static/avatars/presets/avatar{{ i }}.svg">
+                        <img src="/static/avatars/presets/avatar{{ i }}.svg" alt="预设头像{{ i }}" class="preset-avatar"
+                             onerror="this.style.display='none'">
+                    </label>
                     {% endfor %}
+                </div>
+
+                <!-- 文件上传 -->
+                <div class="avatar-choice">
+                    <input type="radio" id="upload_choice" name="avatar_type" value="upload">
+                    <label for="upload_choice">上传头像</label>
+                </div>
+
+                <div class="upload-section" id="upload-section" style="display: none;">
+                    <input type="file" id="avatar_file" name="avatar_file" accept="image/*">
+                    <p class="upload-hint">支持 PNG, JPG, JPEG, GIF 格式，最大 16MB</p>
+                    <div class="upload-preview" id="upload-preview"></div>
+                </div>
+
+                <!-- URL输入 -->
+                <div class="avatar-choice">
+                    <input type="radio" id="url_choice" name="avatar_type" value="url">
+                    <label for="url_choice">使用链接</label>
+                </div>
+
+                <div class="url-section" id="url-section" style="display: none;">
+                    <input type="url" id="avatar_url" name="avatar_url" placeholder="https://example.com/avatar.jpg">
                 </div>
             </div>
         </div>
@@ -84,4 +112,99 @@
 </div>
 
 <script src="{{ url_for('static', filename='js/register.js') }}"></script>
+
+<style>
+.avatar-options {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    background: #f9f9f9;
+    margin-bottom: 20px;
+}
+
+.default-avatar-preview {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.avatar-preview {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 2px solid #3498db;
+    object-fit: cover;
+}
+
+.avatar-choice {
+    margin: 15px 0;
+}
+
+.avatar-choice input[type="radio"] {
+    margin-right: 8px;
+}
+
+.avatar-choice label {
+    font-weight: normal;
+    cursor: pointer;
+}
+
+.preset-avatars {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    gap: 10px;
+    margin: 15px 0;
+    padding: 15px;
+    background: white;
+    border-radius: 5px;
+    min-height: 80px;
+}
+
+.preset-avatar-option {
+    cursor: pointer;
+    text-align: center;
+}
+
+.preset-avatar-option input[type="radio"] {
+    display: none;
+}
+
+.preset-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    transition: all 0.3s;
+    object-fit: cover;
+}
+
+.preset-avatar-option input[type="radio"]:checked + .preset-avatar {
+    border-color: #3498db;
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(52, 152, 219, 0.5);
+}
+
+.preset-avatar:hover {
+    transform: scale(1.05);
+}
+
+.upload-section, .url-section {
+    margin: 15px 0;
+    padding: 15px;
+    background: white;
+    border-radius: 5px;
+}
+
+.upload-hint {
+    font-size: 12px;
+    color: #666;
+    margin: 8px 0;
+}
+
+.upload-preview img {
+    max-width: 100%;
+    max-height: 200px;
+    margin-top: 10px;
+    border-radius: 5px;
+}
+</style>
 {% endblock %}
