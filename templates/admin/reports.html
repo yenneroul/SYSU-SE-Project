@@ -1,0 +1,148 @@
+{% extends "admin/base.html" %}
+
+{% block title %}举报管理{% endblock %}
+{% block header %}举报管理{% endblock %}
+
+{% block toolbar %}
+<div class="btn-group" role="group">
+    <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+        筛选状态
+    </button>
+    <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="{{ url_for('admin.reports') }}">待处理</a></li>
+        <li><a class="dropdown-item" href="{{ url_for('admin.reports', status='resolved') }}">已处理</a></li>
+        <li><a class="dropdown-item" href="{{ url_for('admin.reports', status='dismissed') }}">已驳回</a></li>
+        <li><a class="dropdown-item" href="{{ url_for('admin.reports', status='') }}">全部</a></li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- 举报表格 -->
+<div class="card">
+    <div class="card-header">
+        <h5>举报列表</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>举报人</th>
+                        <th>举报对象</th>
+                        <th>举报原因</th>
+                        <th>状态</th>
+                        <th>举报时间</th>
+                        <th>处理人</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for report in reports.items %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <img src="{{ report.reporter.avatar_url }}" alt="" width="32" height="32" class="rounded-circle me-2">
+                                <strong>{{ report.reporter.username }}</strong>
+                            </div>
+                        </td>
+                        <td>
+                            {% if report.reported_user %}
+                                <strong>用户:</strong> {{ report.reported_user.username }}
+                            {% elif report.reported_post %}
+                                <strong>帖子:</strong> {{ report.reported_post.content[:30] }}...
+                            {% elif report.reported_message %}
+                                <strong>消息:</strong> {{ report.reported_message.body[:30] }}...
+                            {% endif %}
+                        </td>
+                        <td>
+                            <strong>{{ report.reason }}</strong>
+                            {% if report.description %}
+                                <br><small class="text-muted">{{ report.description[:50] }}...</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if report.status == 'pending' %}
+                                <span class="badge bg-warning">待处理</span>
+                            {% elif report.status == 'resolved' %}
+                                <span class="badge bg-success">已处理</span>
+                            {% else %}
+                                <span class="badge bg-secondary">已驳回</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ report.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>
+                            {% if report.handler %}
+                                {{ report.handler.username }}
+                                <br><small class="text-muted">{{ report.handled_at.strftime('%m-%d %H:%M') }}</small>
+                            {% else %}
+                                <span class="text-muted">未处理</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if report.status == 'pending' %}
+                            <div class="btn-group btn-group-sm" role="group">
+                                <form method="POST" action="{{ url_for('admin.handle_report', report_id=report.id) }}" style="display: inline;">
+                                    <input type="hidden" name="action" value="resolve">
+                                    <button type="submit" class="btn btn-outline-success" 
+                                            onclick="return confirm('确定处理这个举报吗？')">
+                                        处理
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ url_for('admin.handle_report', report_id=report.id) }}" style="display: inline;">
+                                    <input type="hidden" name="action" value="dismiss">
+                                    <button type="submit" class="btn btn-outline-secondary" 
+                                            onclick="return confirm('确定驳回这个举报吗？')">
+                                        驳回
+                                    </button>
+                                </form>
+                            </div>
+                            {% else %}
+                                <span class="text-muted">已处理</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 分页 -->
+        {% if reports.pages > 1 %}
+        <nav>
+            <ul class="pagination justify-content-center">
+                {% if reports.has_prev %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('admin.reports', page=reports.prev_num, status=status_filter) }}">上一页</a>
+                </li>
+                {% endif %}
+                
+                {% for page_num in reports.iter_pages() %}
+                    {% if page_num %}
+                        {% if page_num != reports.page %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('admin.reports', page=page_num, status=status_filter) }}">{{ page_num }}</a>
+                        </li>
+                        {% else %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ page_num }}</span>
+                        </li>
+                        {% endif %}
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">…</span>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if reports.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('admin.reports', page=reports.next_num, status=status_filter) }}">下一页</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

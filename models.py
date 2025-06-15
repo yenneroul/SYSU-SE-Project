@@ -94,6 +94,12 @@ class User(UserMixin, db.Model):
                                backref=db.backref('followers', lazy='dynamic'),
                                lazy='dynamic')
 
+    # 管理员相关字段
+    role = db.Column(db.String(20), default='user')  # user, moderator, super_admin
+    is_active = db.Column(db.Boolean, default=True)  # 账户是否激活
+    banned_until = db.Column(db.DateTime, nullable=True)  # 封禁到期时间
+    created_by_admin = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)  # 由哪个管理员创建
+
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
@@ -128,6 +134,31 @@ class User(UserMixin, db.Model):
 
         return matching_users
 
+    # 管理员权限检查方法
+    def is_admin(self):
+        """检查是否为管理员（版主或超级管理员）"""
+        return self.role in ['moderator', 'super_admin']
+    
+    def is_super_admin(self):
+        """检查是否为超级管理员"""
+        return self.role == 'super_admin'
+    
+    def can_manage_users(self):
+        """检查是否可以管理用户"""
+        return self.role == 'super_admin'
+    
+    def can_manage_posts(self):
+        """检查是否可以管理帖子"""
+        return self.role in ['moderator', 'super_admin']
+    
+    def is_banned(self):
+        """检查用户是否被封禁"""
+        if not self.is_active:
+            return True
+        if self.banned_until and self.banned_until > datetime.utcnow():
+            return True
+        return False
+
 
 class Tag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -153,3 +184,46 @@ class Like(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     __table_args__ = (db.UniqueConstraint('user_id', 'post_id'),)
+
+
+class AdminLog(db.Model):
+    """管理员操作日志"""
+    id = db.Column(db.Integer, primary_key=True)
+    admin_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    action = db.Column(db.String(100), nullable=False)  # 操作类型
+    target_type = db.Column(db.String(50))  # 目标类型 (user, post, etc.)
+    target_id = db.Column(db.Integer)  # 目标ID
+    description = db.Column(db.Text)  # 操作描述
+    ip_address = db.Column(db.String(45))  # IP地址
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # 关联管理员
+    admin = db.relationship('User', foreign_keys=[admin_id])
+
+    def __repr__(self):
+        return f'<AdminLog {self.id}: {self.action}>'
+
+
+class Report(db.Model):
+    """用户举报"""
+    id = db.Column(db.Integer, primary_key=True)
+    reporter_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    reported_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    reported_post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=True)
+    reported_message_id = db.Column(db.Integer, db.ForeignKey('message.id'), nullable=True)
+    reason = db.Column(db.String(100), nullable=False)  # 举报原因
+    description = db.Column(db.Text)  # 详细描述
+    status = db.Column(db.String(20), default='pending')  # pending, resolved, dismissed
+    handled_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    handled_at = db.Column(db.DateTime, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # 关联用户
+    reporter = db.relationship('User', foreign_keys=[reporter_id])
+    reported_user = db.relationship('User', foreign_keys=[reported_user_id])
+    reported_post = db.relationship('Post', foreign_keys=[reported_post_id])
+    reported_message = db.relationship('Message', foreign_keys=[reported_message_id])
+    handler = db.relationship('User', foreign_keys=[handled_by])
+
+    def __repr__(self):
+        return f'<Report {self.id}: {self.reason}>'

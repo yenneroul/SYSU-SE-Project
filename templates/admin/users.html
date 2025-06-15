@@ -1,0 +1,245 @@
+{% extends "admin/base.html" %}
+
+{% block title %}用户管理{% endblock %}
+{% block header %}用户管理{% endblock %}
+
+{% block toolbar %}
+<div class="btn-group" role="group">
+    <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+        筛选角色
+    </button>
+    <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="{{ url_for('admin.users') }}">全部</a></li>
+        <li><a class="dropdown-item" href="{{ url_for('admin.users', role='user') }}">普通用户</a></li>
+        <li><a class="dropdown-item" href="{{ url_for('admin.users', role='moderator') }}">版主</a></li>
+        <li><a class="dropdown-item" href="{{ url_for('admin.users', role='super_admin') }}">超级管理员</a></li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- 搜索栏 -->
+<div class="row mb-3">
+    <div class="col-md-6">
+        <form method="GET" class="d-flex">
+            <input type="text" class="form-control me-2" name="search" placeholder="搜索用户名或邮箱" value="{{ search }}">
+            <input type="hidden" name="role" value="{{ role_filter }}">
+            <button class="btn btn-outline-primary" type="submit">搜索</button>
+        </form>
+    </div>
+</div>
+
+<!-- 用户表格 -->
+<div class="card">
+    <div class="card-header">
+        <h5>用户列表</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>头像</th>
+                        <th>用户名</th>
+                        <th>邮箱</th>
+                        <th>角色</th>
+                        <th>状态</th>
+                        <th>注册时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users.items %}
+                    <tr>
+                        <td>
+                            <img src="{{ user.avatar_url }}" alt="" width="40" height="40" class="rounded-circle">
+                        </td>
+                        <td>
+                            <strong>{{ user.username }}</strong>
+                            {% if user.is_banned() %}
+                                <span class="badge bg-danger">已封禁</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ user.email or '未设置' }}</td>
+                        <td>
+                            {% if user.role == 'super_admin' %}
+                                <span class="badge bg-danger">超级管理员</span>
+                            {% elif user.role == 'moderator' %}
+                                <span class="badge bg-warning">版主</span>
+                            {% else %}
+                                <span class="badge bg-secondary">用户</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.is_active %}
+                                <span class="badge bg-success">激活</span>
+                            {% else %}
+                                <span class="badge bg-secondary">禁用</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <!-- 激活/禁用按钮 -->
+                                {% if current_user.is_super_admin() and not user.is_super_admin() %}                                <form method="POST" action="{{ url_for('admin.toggle_user_active', user_id=user.id) }}" style="display: inline;">
+                                    <button type="submit" class="btn btn-outline-{% if user.is_active %}danger{% else %}success{% endif %}" 
+                                            onclick="return confirm('确定要{% if user.is_active %}禁用{% else %}激活{% endif %}此用户吗？')">
+                                        {% if user.is_active %}禁用{% else %}激活{% endif %}
+                                    </button>
+                                </form>
+                                {% endif %}
+                                
+                                <!-- 封禁按钮 -->
+                                {% if not user.is_super_admin() %}
+                                <button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" 
+                                        data-bs-target="#banModal" data-user-id="{{ user.id }}" data-username="{{ user.username }}">
+                                    封禁
+                                </button>
+                                {% endif %}
+                                
+                                <!-- 角色管理 -->
+                                {% if current_user.is_super_admin() %}
+                                <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" 
+                                        data-bs-target="#roleModal" data-user-id="{{ user.id }}" data-username="{{ user.username }}" data-role="{{ user.role }}">
+                                    角色
+                                </button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 分页 -->
+        {% if users.pages > 1 %}
+        <nav>
+            <ul class="pagination justify-content-center">
+                {% if users.has_prev %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('admin.users', page=users.prev_num, search=search, role=role_filter) }}">上一页</a>
+                </li>
+                {% endif %}
+                
+                {% for page_num in users.iter_pages() %}
+                    {% if page_num %}
+                        {% if page_num != users.page %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('admin.users', page=page_num, search=search, role=role_filter) }}">{{ page_num }}</a>
+                        </li>
+                        {% else %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ page_num }}</span>
+                        </li>
+                        {% endif %}
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">…</span>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if users.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('admin.users', page=users.next_num, search=search, role=role_filter) }}">下一页</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+
+<!-- 封禁模态框 -->
+<div class="modal fade" id="banModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">封禁用户</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" id="banForm">
+                <div class="modal-body">
+                    <p>确定要封禁用户 <strong id="banUsername"></strong> 吗？</p>
+                    <div class="mb-3">
+                        <label for="banDays" class="form-label">封禁天数</label>
+                        <select class="form-select" name="days" id="banDays">
+                            <option value="1">1天</option>
+                            <option value="3">3天</option>
+                            <option value="7" selected>7天</option>
+                            <option value="30">30天</option>
+                            <option value="365">365天</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="banReason" class="form-label">封禁原因</label>
+                        <textarea class="form-control" name="reason" id="banReason" rows="3" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-warning">确认封禁</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 角色管理模态框 -->
+<div class="modal fade" id="roleModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">修改用户角色</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" id="roleForm">
+                <div class="modal-body">
+                    <p>修改用户 <strong id="roleUsername"></strong> 的角色</p>
+                    <div class="mb-3">
+                        <label for="userRole" class="form-label">选择角色</label>
+                        <select class="form-select" name="role" id="userRole">
+                            <option value="user">普通用户</option>
+                            <option value="moderator">版主</option>
+                            <option value="super_admin">超级管理员</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">确认修改</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// 封禁模态框
+const banModal = document.getElementById('banModal');
+banModal.addEventListener('show.bs.modal', function (event) {
+    const button = event.relatedTarget;
+    const userId = button.getAttribute('data-user-id');
+    const username = button.getAttribute('data-username');
+    
+    document.getElementById('banUsername').textContent = username;
+    document.getElementById('banForm').action = `/admin/users/${userId}/ban`;
+});
+
+// 角色管理模态框
+const roleModal = document.getElementById('roleModal');
+roleModal.addEventListener('show.bs.modal', function (event) {
+    const button = event.relatedTarget;
+    const userId = button.getAttribute('data-user-id');
+    const username = button.getAttribute('data-username');
+    const role = button.getAttribute('data-role');
+    
+    document.getElementById('roleUsername').textContent = username;
+    document.getElementById('userRole').value = role;
+    document.getElementById('roleForm').action = `/admin/users/${userId}/promote`;
+});
+</script>
+{% endblock %}

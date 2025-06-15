@@ -1,0 +1,124 @@
+{% extends "admin/base.html" %}
+
+{% block title %}控制台{% endblock %}
+{% block header %}控制台概览{% endblock %}
+
+{% block content %}
+<!-- 统计卡片 -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card border-primary">
+            <div class="card-body text-center">
+                <i class="bi bi-people display-4 text-primary"></i>
+                <h3 class="mt-2">{{ total_users }}</h3>
+                <p class="text-muted">总用户数</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card border-success">
+            <div class="card-body text-center">
+                <i class="bi bi-file-text display-4 text-success"></i>
+                <h3 class="mt-2">{{ total_posts }}</h3>
+                <p class="text-muted">总帖子数</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card border-info">
+            <div class="card-body text-center">
+                <i class="bi bi-chat display-4 text-info"></i>
+                <h3 class="mt-2">{{ total_messages }}</h3>
+                <p class="text-muted">总消息数</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card border-warning">
+            <div class="card-body text-center">
+                <i class="bi bi-flag display-4 text-warning"></i>
+                <h3 class="mt-2">{{ pending_reports }}</h3>
+                <p class="text-muted">待处理举报</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- 最近用户 -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-people"></i> 最近注册用户</h5>
+            </div>
+            <div class="card-body">
+                {% for user in recent_users %}
+                <div class="d-flex align-items-center mb-2">
+                    <img src="{{ user.avatar_url }}" alt="" width="32" height="32" class="rounded-circle me-2">
+                    <div>
+                        <strong>{{ user.username }}</strong>
+                        <small class="text-muted d-block">
+                            {% if user.role == 'super_admin' %}
+                                <span class="badge bg-danger">超级管理员</span>
+                            {% elif user.role == 'moderator' %}
+                                <span class="badge bg-warning">版主</span>
+                            {% else %}
+                                <span class="badge bg-secondary">用户</span>
+                            {% endif %}
+                        </small>
+                    </div>
+                </div>
+                {% endfor %}
+                <a href="{{ url_for('admin.users') }}" class="btn btn-sm btn-outline-primary">查看全部用户</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 最近帖子 -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-file-text"></i> 最近发布帖子</h5>
+            </div>
+            <div class="card-body">
+                {% for post in recent_posts %}
+                <div class="mb-2">
+                    <strong>{{ post.author.username }}</strong>
+                    <p class="mb-1 small">{{ post.content[:50] }}{% if post.content|length > 50 %}...{% endif %}</p>
+                    <small class="text-muted">{{ post.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                </div>
+                <hr>
+                {% endfor %}
+                <a href="{{ url_for('admin.posts') }}" class="btn btn-sm btn-outline-primary">查看全部帖子</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 待处理举报 -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-flag"></i> 待处理举报</h5>
+            </div>
+            <div class="card-body">
+                {% for report in recent_reports %}
+                <div class="mb-2">
+                    <strong>{{ report.reason }}</strong>
+                    <p class="mb-1 small">举报人: {{ report.reporter.username }}</p>
+                    {% if report.reported_user %}
+                    <p class="mb-1 small">被举报用户: {{ report.reported_user.username }}</p>
+                    {% endif %}
+                    <small class="text-muted">{{ report.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                </div>
+                <hr>
+                {% endfor %}
+                {% if pending_reports > 0 %}
+                <a href="{{ url_for('admin.reports') }}" class="btn btn-sm btn-outline-warning">处理举报</a>
+                {% else %}
+                <p class="text-muted">暂无待处理举报</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

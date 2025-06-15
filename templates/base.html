@@ -23,8 +23,7 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('discover') }}">发现</a>
-                    </li>
-                    <li class="nav-item">
+                    </li>                    <li class="nav-item">
                         <!--
                         修正之处:
                         1. 蓝图名称是 'message'。
@@ -33,6 +32,11 @@
                         -->
                         <a class="nav-link" href="{{ url_for('message.message_inbox') }}">消息</a>
                     </li>
+                    {% if current_user.is_admin() %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin.dashboard') }}">🛠️ 管理</a>
+                    </li>
+                    {% endif %}
                 </ul>
                 <ul class="navbar-nav">
                     <li class="nav-item dropdown">
