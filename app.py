@@ -23,17 +23,15 @@ def create_app():
         os.makedirs(preset_dir)
 
     # 初始化扩展
-    db.init_app(app)
-
-    # 初始化登录管理
+    db.init_app(app)    # 初始化登录管理
     login_manager = LoginManager()
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
     login_manager.login_message = '请先登录'
-
+    
     @login_manager.user_loader
     def load_user(user_id):
-        return User.query.get(int(user_id))
+        return db.session.get(User, int(user_id))
 
     # 注册蓝图
 
@@ -42,12 +40,14 @@ def create_app():
     from routes.post import post_bp
     from routes.follow import follow_bp
     from routes.message import message_bp
+    from routes.admin import admin_bp
     # 注册消息蓝图，并添加 URL 前缀
     app.register_blueprint(message_bp, url_prefix='/messages')
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(user_bp, url_prefix='/user')
     app.register_blueprint(post_bp, url_prefix='/post')
     app.register_blueprint(follow_bp, url_prefix='/follow')
+    app.register_blueprint(admin_bp, url_prefix='/admin')
     @app.route('/')
     def index():
         if current_user.is_authenticated:

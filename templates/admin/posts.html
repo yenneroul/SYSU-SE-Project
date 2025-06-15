@@ -1,0 +1,152 @@
+{% extends "admin/base.html" %}
+
+{% block title %}帖子管理{% endblock %}
+{% block header %}帖子管理{% endblock %}
+
+{% block content %}
+<!-- 搜索栏 -->
+<div class="row mb-3">
+    <div class="col-md-6">
+        <form method="GET" class="d-flex">
+            <input type="text" class="form-control me-2" name="search" placeholder="搜索帖子内容" value="{{ search }}">
+            <button class="btn btn-outline-primary" type="submit">搜索</button>
+        </form>
+    </div>
+</div>
+
+<!-- 帖子表格 -->
+<div class="card">
+    <div class="card-header">
+        <h5>帖子列表</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>作者</th>
+                        <th>内容</th>
+                        <th>图片</th>
+                        <th>点赞数</th>
+                        <th>发布时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for post in posts.items %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <img src="{{ post.author.avatar_url }}" alt="" width="32" height="32" class="rounded-circle me-2">
+                                <strong>{{ post.author.username }}</strong>
+                            </div>
+                        </td>
+                        <td>
+                            <div style="max-width: 300px;">
+                                {{ post.content[:100] }}
+                                {% if post.content|length > 100 %}...{% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            {% if post.image_url %}
+                                <img src="{{ post.image_url }}" alt="" width="50" height="50" class="rounded">
+                            {% else %}
+                                <span class="text-muted">无</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ post.likes_count }}</td>
+                        <td>{{ post.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>
+                            <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" 
+                                    data-bs-target="#deleteModal" data-post-id="{{ post.id }}" data-content="{{ post.content[:50] }}">
+                                删除
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 分页 -->
+        {% if posts.pages > 1 %}
+        <nav>
+            <ul class="pagination justify-content-center">
+                {% if posts.has_prev %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('admin.posts', page=posts.prev_num, search=search) }}">上一页</a>
+                </li>
+                {% endif %}
+                
+                {% for page_num in posts.iter_pages() %}
+                    {% if page_num %}
+                        {% if page_num != posts.page %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('admin.posts', page=page_num, search=search) }}">{{ page_num }}</a>
+                        </li>
+                        {% else %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ page_num }}</span>
+                        </li>
+                        {% endif %}
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">…</span>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if posts.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('admin.posts', page=posts.next_num, search=search) }}">下一页</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+
+<!-- 删除确认模态框 -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">删除帖子</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" id="deleteForm">
+                <div class="modal-body">
+                    <p>确定要删除这篇帖子吗？</p>
+                    <div class="alert alert-warning">
+                        <strong>帖子内容：</strong><span id="postContent"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label for="deleteReason" class="form-label">删除原因</label>
+                        <textarea class="form-control" name="reason" id="deleteReason" rows="3" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-danger">确认删除</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// 删除模态框
+const deleteModal = document.getElementById('deleteModal');
+deleteModal.addEventListener('show.bs.modal', function (event) {
+    const button = event.relatedTarget;
+    const postId = button.getAttribute('data-post-id');
+    const content = button.getAttribute('data-content');
+    
+    document.getElementById('postContent').textContent = content;
+    document.getElementById('deleteForm').action = `/admin/posts/${postId}/delete`;
+});
+</script>
+{% endblock %}
