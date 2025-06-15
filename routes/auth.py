@@ -36,11 +36,15 @@ def register():
         user = User(
             username=username,
             email=email if email else None,  # 空字符串转为None
-            gender=gender,
-            contact_type=contact_type,
-            contact_account=contact_account,
+            gender=gender.capitalize(),  # 首字母大写，与profile页面匹配
             avatar_url=avatar_url
         )
+        
+        # 根据联系方式类型，设置相应的字段
+        if contact_type == 'qq':
+            user.qq = contact_account
+        elif contact_type == 'wechat':
+            user.wechat = contact_account
         user.set_password(password)
 
         # 添加选择的标签
