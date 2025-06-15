@@ -9,7 +9,7 @@
             {% for followed_user in following.items %}
             <div class="user-item">
                 <div class="user-info">
-                    <img src="{{ followed_user.avatar_url or '/static/default-avatar.png' }}" 
+                    <img src="{{ followed_user.avatar_url or '/static/default-avatar.svg' }}" 
                          alt="avatar" class="avatar-small">
                     <div class="user-details">
 <h4><a href="{{ url_for('user.profile', user_id=followed_user.id) }}">

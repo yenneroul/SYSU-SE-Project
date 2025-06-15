@@ -7,7 +7,7 @@
     <div class="user-cards">
         {% for user in users %}
         <div class="user-card">
-            <img src="{{ user.avatar_url or '/static/default-avatar.png' }}"
+            <img src="{{ user.avatar_url or '/static/default-avatar.svg' }}"
                  alt="头像" class="avatar-large">
             <h3><a href="{{ url_for('user.profile', user_id=user.id) }}">{{ user.username }}</a></h3>
 

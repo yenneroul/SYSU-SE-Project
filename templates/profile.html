@@ -3,7 +3,7 @@
 {% block content %}
 <div class="container">
     <div class="profile-header">
-        <img src="{{ user.avatar_url or '/static/default-avatar.png' }}"
+        <img src="{{ user.avatar_url or '/static/default-avatar.svg' }}"
              alt="头像" class="avatar-large">        <div class="profile-info">
             <h2>{{ user.username }}</h2>
             <div class="user-tags">
@@ -88,7 +88,7 @@
         <h3>{{ user.username }}的动态</h3>
         {% if posts %}
             {% for post in posts %}
-            <div class="post-card">                <div class="post-header">                    <img src="{{ post.author.avatar_url or '/static/default-avatar.png' }}"
+            <div class="post-card">                <div class="post-header">                    <img src="{{ post.author.avatar_url or '/static/default-avatar.svg' }}"
                          alt="头像" class="avatar-medium">
                     <div class="post-info">
                         <h4><a href="{{ url_for('user.profile', user_id=post.author.id) }}" class="username-link">{{ post.author.username }}</a></h4>

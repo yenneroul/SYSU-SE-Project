@@ -38,6 +38,28 @@
                 <option value="wechat">微信</option>
             </select>
             <input type="text" id="contact_account" name="contact_account" placeholder="请输入QQ号或微信号" style="display:none;" required>
+        </div>        <div class="form-group">
+            <label>选择头像 (可选，不选则使用默认头像):</label>
+            <div class="avatar-selection">
+                <div class="avatar-option">
+                    <input type="radio" id="default-avatar" name="avatar_choice" value="default" checked>
+                    <label for="default-avatar">
+                        <img src="/static/default-avatar.svg" alt="默认头像" class="avatar-preview">
+                        <span>默认头像</span>
+                    </label>
+                </div>
+                
+                <div class="preset-avatars">
+                    {% for i in range(1, 9) %}
+                    <div class="avatar-option">
+                        <input type="radio" id="preset-{{ i }}" name="avatar_choice" value="preset_{{ i }}">
+                        <label for="preset-{{ i }}">
+                            <img src="/static/avatars/presets/avatar{{ i }}.svg" alt="预设头像{{ i }}" class="avatar-preview">
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
 
         <div class="form-group">

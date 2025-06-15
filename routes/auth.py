@@ -14,6 +14,7 @@ def register():
         contact_type = request.form.get('contact_type')
         contact_account = request.form.get('contact_account')
         selected_tags = request.form.getlist('tags')
+        avatar_choice = request.form.get('avatar_choice', 'default')
 
         # 检查用户是否已存在
         if User.query.filter_by(username=username).first():
@@ -25,13 +26,20 @@ def register():
             flash('邮箱已被注册')
             return render_template('register.html', tags=Tag.query.all())
 
+        # 处理头像选择
+        avatar_url = '/static/default-avatar.svg'  # 默认头像
+        if avatar_choice.startswith('preset_'):
+            avatar_num = avatar_choice.split('_')[1]
+            avatar_url = f'/static/avatars/presets/avatar{avatar_num}.svg'
+
         # 创建用户，如果邮箱为空则设为None
         user = User(
             username=username,
             email=email if email else None,  # 空字符串转为None
             gender=gender,
             contact_type=contact_type,
-            contact_account=contact_account
+            contact_account=contact_account,
+            avatar_url=avatar_url
         )
         user.set_password(password)
 
