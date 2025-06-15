@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}注册 - 标签社交{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <h2>注册账号</h2>
+    <form method="POST" class="auth-form">
+        <div class="form-group">
+            <label for="username">用户名:</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+
+        <div class="form-group">
+            <label for="email">邮箱:</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+
+        <div class="form-group">
+            <label for="password">密码:</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+
+        <div class="form-group">
+            <label>选择你的标签 (至少选择3个):</label>
+            <div class="tags-container">
+                {% for tag in tags %}
+                <label class="tag-checkbox">
+                    <input type="checkbox" name="tags" value="{{ tag.id }}">
+                    <span class="tag-label">{{ tag.name }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        <button type="submit" class="btn-primary">注册</button>
+    </form>
+
+    <p><a href="{{ url_for('auth.login') }}">已有账号？点击登录</a></p>
+</div>
+{% endblock %}

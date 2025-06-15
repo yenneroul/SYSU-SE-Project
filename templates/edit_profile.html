@@ -1,0 +1,359 @@
+{% extends "base.html" %}
+
+{% block title %}编辑资料 - 标签社交{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="edit-profile-container">
+        <h2>编辑个人资料</h2>
+        
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for message in messages %}
+                        <div class="alert">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+        <form method="POST" enctype="multipart/form-data" class="edit-form">
+            <div class="form-group">
+                <label for="bio">个人简介:</label>
+                <textarea id="bio" name="bio" placeholder="介绍一下自己...">{{ current_user.bio or '' }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">电话:</label>
+                <input type="text" id="phone" name="phone" value="{{ current_user.phone or '' }}">
+            </div>
+
+            <div class="form-group">
+                <label for="qq">QQ:</label>
+                <input type="text" id="qq" name="qq" value="{{ current_user.qq or '' }}">
+            </div>
+
+            <div class="form-group">
+                <label for="wechat">微信:</label>
+                <input type="text" id="wechat" name="wechat" value="{{ current_user.wechat or '' }}">
+            </div>
+
+            <div class="form-group">
+                <label>性别:</label>
+                <div>
+                    <label><input type="radio" name="gender" value="Male" {% if current_user.gender == 'Male' %}checked{% endif %}> 男</label>
+                    <label><input type="radio" name="gender" value="Female" {% if current_user.gender == 'Female' %}checked{% endif %}> 女</label>
+                    <label><input type="radio" name="gender" value="Other" {% if current_user.gender == 'Other' %}checked{% endif %}> 其他</label>
+                    <label><input type="radio" name="gender" value="Prefer not to say" {% if current_user.gender == 'Prefer not to say' %}checked{% endif %}> 不愿透露</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>标签:</label>
+                <div class="tags-container">
+                    {% for tag in all_tags %}
+                    <label class="tag-checkbox">
+                        <input type="checkbox" name="tags" value="{{ tag.id }}"
+                               {% if tag in current_user.tags %}checked{% endif %}>
+                        <span class="tag-label">{{ tag.name }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>头像设置:</label>
+                <div class="avatar-options">
+                    <!-- 当前头像预览 -->
+                    <div class="current-avatar">
+                        <img src="{{ current_user.avatar_url or '/static/default-avatar.svg' }}" 
+                             alt="当前头像" class="avatar-preview"
+                             onerror="this.src='/static/default-avatar.svg'">
+                        <p>当前头像</p>
+                    </div>
+
+                    <!-- 预设头像选择 -->
+                    <div class="avatar-choice">
+                        <input type="radio" id="preset_choice" name="avatar_type" value="preset" checked>
+                        <label for="preset_choice">选择预设头像</label>
+                    </div>
+
+                    <div class="preset-avatars" id="preset-avatars">
+                        {% if preset_avatars %}
+                            {% for avatar_url in preset_avatars %}
+                            <label class="preset-avatar-option">
+                                <input type="radio" name="preset_avatar" value="{{ avatar_url }}">
+                                <img src="{{ avatar_url }}" alt="预设头像" class="preset-avatar"
+                                     onerror="this.style.display='none'">
+                            </label>
+                            {% endfor %}
+                        {% else %}
+                            <p>暂无预设头像</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- 文件上传 -->
+                    <div class="avatar-choice">
+                        <input type="radio" id="upload_choice" name="avatar_type" value="upload">
+                        <label for="upload_choice">上传头像</label>
+                    </div>
+
+                    <div class="upload-section" id="upload-section" style="display: none;">
+                        <input type="file" id="avatar_file" name="avatar_file" accept="image/*">
+                        <p class="upload-hint">支持 PNG, JPG, JPEG, GIF 格式，最大 16MB</p>
+                        <div class="upload-preview" id="upload-preview"></div>
+                    </div>
+
+                    <!-- URL输入 -->
+                    <div class="avatar-choice">
+                        <input type="radio" id="url_choice" name="avatar_type" value="url">
+                        <label for="url_choice">使用链接</label>
+                    </div>
+
+                    <div class="url-section" id="url-section" style="display: none;">
+                        <input type="url" id="avatar_url" name="avatar_url" placeholder="https://example.com/avatar.jpg">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">保存更改</button>
+                <a href="{{ url_for('user.profile', user_id=current_user.id) }}" class="btn-secondary">取消</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.edit-profile-container {
+    max-width: 600px;
+    margin: 20px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.flash-messages {
+    margin-bottom: 20px;
+}
+
+.alert {
+    padding: 10px;
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    border-radius: 5px;
+    color: #155724;
+    margin-bottom: 10px;
+}
+
+.edit-form .form-group {
+    margin-bottom: 25px;
+}
+
+.edit-form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.edit-form textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    resize: vertical;
+    min-height: 100px;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+.avatar-options {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    background: #f9f9f9;
+}
+
+.current-avatar {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.avatar-preview {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid #3498db;
+    object-fit: cover;
+}
+
+.avatar-choice {
+    margin: 15px 0;
+}
+
+.avatar-choice input[type="radio"] {
+    margin-right: 8px;
+}
+
+.avatar-choice label {
+    font-weight: normal;
+    cursor: pointer;
+}
+
+.preset-avatars {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    gap: 10px;
+    margin: 15px 0;
+    padding: 15px;
+    background: white;
+    border-radius: 5px;
+    min-height: 80px;
+}
+
+.preset-avatar-option {
+    cursor: pointer;
+    text-align: center;
+}
+
+.preset-avatar-option input[type="radio"] {
+    display: none;
+}
+
+.preset-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    transition: all 0.3s;
+    object-fit: cover;
+}
+
+.preset-avatar-option input[type="radio"]:checked + .preset-avatar {
+    border-color: #3498db;
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(52, 152, 219, 0.5);
+}
+
+.preset-avatar:hover {
+    transform: scale(1.05);
+}
+
+.upload-section, .url-section {
+    margin: 15px 0;
+    padding: 15px;
+    background: white;
+    border-radius: 5px;
+}
+
+.upload-hint {
+    font-size: 12px;
+    color: #7f8c8d;
+    margin-top: 5px;
+}
+
+.upload-preview img {
+    max-width: 100px;
+    max-height: 100px;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+.url-section input[type="url"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.btn-primary, .btn-secondary {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.3s;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.btn-primary {
+    background: #3498db;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #2980b9;
+}
+
+.btn-secondary {
+    background: #95a5a6;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #7f8c8d;
+}
+
+@media (max-width: 768px) {
+    .preset-avatars {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
+    .edit-profile-container {
+        margin: 10px;
+        padding: 20px;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const avatarTypeRadios = document.querySelectorAll('input[name="avatar_type"]');
+    const presetSection = document.getElementById('preset-avatars');
+    const uploadSection = document.getElementById('upload-section');
+    const urlSection = document.getElementById('url-section');
+    const fileInput = document.getElementById('avatar_file');
+    const uploadPreview = document.getElementById('upload-preview');
+
+    // 头像类型切换
+    avatarTypeRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (presetSection) presetSection.style.display = this.value === 'preset' ? 'grid' : 'none';
+            if (uploadSection) uploadSection.style.display = this.value === 'upload' ? 'block' : 'none';
+            if (urlSection) urlSection.style.display = this.value === 'url' ? 'block' : 'none';
+        });
+    });
+
+    // 文件预览
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadPreview.innerHTML = '<img src="' + e.target.result + '" alt="预览" style="max-width: 100px; max-height: 100px; border-radius: 5px; margin-top: 10px; object-fit: cover;">';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    // 初始化显示状态
+    const checkedType = document.querySelector('input[name="avatar_type"]:checked');
+    if (checkedType) {
+        checkedType.dispatchEvent(new Event('change'));
+    }
+});
+</script>
+{% endblock %}
