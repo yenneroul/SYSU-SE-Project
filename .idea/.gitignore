@@ -1,3 +1,178 @@
-# 默认忽略的文件
-/shelf/
-/workspace.xml
+# Python 字节码文件
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyo
+*.pyd
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Flask stuff
+instance/
+.webassets-cache
+
+# 数据库文件 - 最重要！
+*.db
+*.sqlite
+*.sqlite3
+social_app.db
+database.db
+
+# 数据库迁移文件（如果使用Flask-Migrate）
+migrations/versions/
+!migrations/
+!migrations/alembic.ini
+!migrations/script.py.mako
+!migrations/env.py
+
+# 用户上传的文件
+static/avatars/uploads/
+uploads/
+user_uploads/
+
+# 日志文件
+logs/
+*.log
+
+# 环境变量文件
+.env
+.env.local
+.env.production
+.env.development
+.env.test
+
+# 虚拟环境
+venv/
+env/
+ENV/
+.venv/
+.env/
+
+# IDE/编辑器文件
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.spyderproject
+.spyproject
+
+# PyCharm
+.idea/
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# 操作系统文件
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# 临时文件
+*.tmp
+*.temp
+temp/
+tmp/
+*.bak
+*.backup
+backup_*
+
+# Flask 会话文件
+flask_session/
+
+# 如果你使用 pytest
+.pytest_cache/
+
+# 如果你使用 coverage
+.coverage
+htmlcov/
+
+# 如果你使用 mypy
+.mypy_cache/
+
+# 密钥和证书文件
+*.pem
+*.key
+*.crt
+*.cert
+ssl/
+certificates/
+
+# 本地配置文件
+config.local.py
+local_settings.py
+
+# 缓存文件
+.cache/
+*.cache
+
+# Node.js 文件（如果你使用了前端构建工具）
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 压缩文件
+*.zip
+*.tar.gz
+*.rar
+
+# 开发时的测试文件
+test_*.py
+*_test.py
+test/
+tests/__pycache__/
+
+# 项目特定的忽略文件
+# 如果你有特殊的配置文件或数据文件，在这里添加

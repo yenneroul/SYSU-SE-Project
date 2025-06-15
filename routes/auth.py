@@ -8,11 +8,11 @@ auth_bp = Blueprint('auth', __name__)
 def register():
     if request.method == 'POST':
         username = request.form['username']
-        email = request.form['email']
+        email = request.form.get('email', '').strip()  # 使用strip()去除空白字符
         password = request.form['password']
-        gender = request.form.get('gender')  # Get gender, using .get() for safety
-        contact_type = request.form.get('contact_type')  # Get contact type
-        contact_account = request.form.get('contact_account')  # Get contact account
+        gender = request.form.get('gender')
+        contact_type = request.form.get('contact_type')
+        contact_account = request.form.get('contact_account')
         selected_tags = request.form.getlist('tags')
 
         # 检查用户是否已存在
@@ -20,14 +20,15 @@ def register():
             flash('用户名已存在')
             return render_template('register.html', tags=Tag.query.all())
 
-        if User.query.filter_by(email=email).first():
+        # 只有当邮箱不为空时才检查重复
+        if email and User.query.filter_by(email=email).first():
             flash('邮箱已被注册')
             return render_template('register.html', tags=Tag.query.all())
 
-        # 创建用户
+        # 创建用户，如果邮箱为空则设为None
         user = User(
             username=username,
-            email=email,
+            email=email if email else None,  # 空字符串转为None
             gender=gender,
             contact_type=contact_type,
             contact_account=contact_account

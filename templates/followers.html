@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>{{ user.username }} 的粉丝</h2>
+    
+    {% if followers.items %}
+        <div class="user-list">
+            {% for follower in followers.items %}
+            <div class="user-item">
+                <div class="user-info">
+                    <img src="{{ follower.avatar_url or '/static/default-avatar.png' }}" 
+                         alt="avatar" class="avatar-small">
+                    <div class="user-details">
+<h4><a href="{{ url_for('user.profile', user_id=follower.id) }}">
+    {{ follower.username }}
+</a></h4>
+                        <p>{{ follower.bio or '这个人很懒，什么都没写' }}</p>
+                    </div>
+                </div>
+                
+                <div class="user-actions">
+                    {% if current_user == user %}
+                        <!-- 如果是自己的粉丝页面，可以移除粉丝 -->
+                        <button class="btn btn-outline-danger btn-sm remove-follower" 
+                                data-user-id="{{ follower.id }}">
+                            移除
+                        </button>
+                    {% endif %}
+                    
+                    {% if current_user != follower %}
+                        <button class="btn btn-primary btn-sm follow-btn" 
+                                data-user-id="{{ follower.id }}">
+                            {% if current_user.is_following(follower) %}
+                                取消关注
+                            {% else %}
+                                关注
+                            {% endif %}
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- 分页 -->
+        {% if followers.pages > 1 %}
+        <nav>
+            <ul class="pagination">
+                {% if followers.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('follow_bp.followers', user_id=user.id, page=followers.prev_num) }}">上一页</a>
+                    </li>
+                {% endif %}
+                
+                {% for page_num in followers.iter_pages() %}
+                    {% if page_num %}
+                        {% if page_num != followers.page %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('follow_bp.followers', user_id=user.id, page=page_num) }}">{{ page_num }}</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_num }}</span>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+                
+                {% if followers.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('follow_bp.followers', user_id=user.id, page=followers.next_num) }}">下一页</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    {% else %}
+        <p>暂无粉丝</p>
+    {% endif %}
+</div>
+
+<script>
+// 关注/取消关注功能
+document.querySelectorAll('.follow-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const userId = this.dataset.userId;
+        fetch(`/follow/${userId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.action === 'followed') {
+                this.textContent = '取消关注';
+            } else {
+                this.textContent = '关注';
+            }
+        });
+    });
+});
+
+// 移除粉丝功能
+document.querySelectorAll('.remove-follower').forEach(btn => {
+    btn.addEventListener('click', function() {
+        if (confirm('确定要移除这个粉丝吗？')) {
+            const userId = this.dataset.userId;
+            fetch(`/remove_follower/${userId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    this.closest('.user-item').remove();
+                }
+            });
+        }
+    });
+});
+</script>
+{% endblock %}

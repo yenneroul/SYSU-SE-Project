@@ -18,7 +18,7 @@
 
 
             {% if user.gender %}
-                <p class="user-detail">性别: 
+                <p class="user-detail">性别:
                     {% if user.gender == 'Male' %}
                         男
                     {% elif user.gender == 'Female' %}
@@ -42,11 +42,14 @@
             {% if user.wechat %}
                 <p class="user-detail">微信: {{ user.wechat }}</p>
             {% endif %}
-
-            <div class="profile-stats">
-                <span>关注: {{ user.followed.count() }}</span>
-                <span>粉丝: {{ user.followers.count() }}</span>
-            </div>
+<div class="profile-stats">
+    <a href="{{ url_for('follow.following', user_id=user.id) }}" class="stat-link">
+        <span>关注: {{ user.followed.count() }}</span>
+    </a>
+    <a href="{{ url_for('follow.followers', user_id=user.id) }}" class="stat-link">
+        <span>粉丝: {{ user.followers.count() }}</span>
+    </a>
+</div>
 
             {% if user.id == current_user.id %}
                 <a href="{{ url_for('user.edit_profile') }}" class="btn-primary">编辑资料</a>
