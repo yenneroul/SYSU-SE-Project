@@ -36,17 +36,18 @@ def create_app():
         return User.query.get(int(user_id))
 
     # 注册蓝图
+
     from routes.auth import auth_bp
     from routes.user import user_bp
     from routes.post import post_bp
     from routes.follow import follow_bp
-
+    from routes.message import message_bp
+    # 注册消息蓝图，并添加 URL 前缀
+    app.register_blueprint(message_bp, url_prefix='/messages')
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(user_bp, url_prefix='/user')
     app.register_blueprint(post_bp, url_prefix='/post')
     app.register_blueprint(follow_bp, url_prefix='/follow')
-
-    # 主页路由
     @app.route('/')
     def index():
         if current_user.is_authenticated:

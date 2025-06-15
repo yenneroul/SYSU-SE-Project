@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1 class="my-4">收件箱</h1>
+
+    {% if conversations_with_details %}
+        <div class="list-group">
+            <!-- 遍历后端处理好的 conversations_with_details 列表 -->
+            {% for item in conversations_with_details %}
+                <a href="{{ url_for('message.view_conversation', conversation_id=item.conversation.id) }}" class="list-group-item list-group-item-action flex-column align-items-start">
+                    <div class="d-flex w-100 justify-content-between">
+                        <!-- 直接使用后端准备好的 other_user 变量 -->
+                        <h5 class="mb-1">
+                            与
+                            {% if item.other_user %}
+                                {{ item.other_user.username }}
+                            {% else %}
+                                [已注销用户]
+                            {% endif %}
+                            的对话
+                        </h5>
+                        <!-- 显示最后消息的时间 -->
+                        <small class="text-muted">{{ item.conversation.last_message_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                    </div>
+
+                    <!-- 直接显示后端准备好的 last_message 内容 -->
+                    {% if item.last_message %}
+                        <p class="mb-1">
+                            <strong>{{ item.last_message.sender.username }}:</strong>
+                            {{ item.last_message.body[:80] }}{% if item.last_message.body|length > 80 %}...{% endif %}
+                        </p>
+                    {% else %}
+                         <p class="mb-1 fst-italic">还没有消息，快开始对话吧！</p>
+                    {% endif %}
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center mt-5">
+            <p class="lead text-muted">你的收件箱是空的。</p>
+            <p>去 <a href="{{ url_for('discover') }}">发现页</a> 看看，找人聊聊天吧！</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>与 {{ recipient.username }} 的对话</h1>
+    <div class="chat-window" style="height: 400px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; margin-bottom: 20px;">
+        {% for message in messages %}
+            <div class="message {% if message.sender == current_user %}text-end{% else %}text-start{% endif %}">
+                <small><strong>{{ message.sender.username }}</strong> - {{ message.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
+                <p style="background-color: {% if message.sender == current_user %}#dcf8c6{% else %}#f1f0f0{% endif %}; display: inline-block; padding: 10px; border-radius: 10px;">
+                    {{ message.body }}
+                </p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <form action="{{ url_for('message.view_conversation', conversation_id=conversation.id) }}" method="post">
+        <div class="mb-3">
+            <textarea name="body" class="form-control" rows="3" placeholder="输入回复..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">发送</button>
+    </form>
+{% endblock %}

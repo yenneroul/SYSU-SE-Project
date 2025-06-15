@@ -83,7 +83,16 @@
             {% endif %}
         </div>
     </div>
-
+{% if user != current_user %}
+    <hr>
+    <h4>向 {{ user.username }} 发送消息</h4>
+    <form action="{{ url_for('message.send_message', recipient_username=user.username) }}" method="post">
+        <div class="mb-3">
+            <textarea name="body" class="form-control" rows="3" placeholder="开始新的对话..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">发送消息</button>
+    </form>
+{% endif %}
     <div class="user-posts">
         <h3>{{ user.username }}的动态</h3>
         {% if posts %}

@@ -16,6 +16,46 @@ follows = db.Table('follows',
                    db.Column('follower_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
                    db.Column('followed_id', db.Integer, db.ForeignKey('user.id'), primary_key=True)
                    )
+# 用于建立 User 和 Conversation 之间的多对多关系
+# 一个用户可以参与多个会话，一个会话可以有多个用户
+conversation_participants = db.Table('conversation_participants',
+                                     db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
+                                     db.Column('conversation_id', db.Integer, db.ForeignKey('conversation.id'),
+                                               primary_key=True)
+                                     )
+
+
+class Conversation(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    # 记录最后一条消息的时间，用于收件箱排序
+    last_message_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # 建立与 Message 的一对多关系
+    messages = db.relationship('Message', backref='conversation', lazy='dynamic', cascade="all, delete-orphan")
+
+    # 建立与 User 的多对多关系
+    participants = db.relationship('User', secondary=conversation_participants,
+                                   lazy='subquery',
+                                   backref=db.backref('conversations', lazy=True))
+
+    def __repr__(self):
+        return f'<Conversation {self.id}>'
+
+
+class Message(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    # 消息内容
+    body = db.Column(db.Text, nullable=False)
+    # 发送时间
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+
+    # 发送者 ID
+    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    # 所属会话 ID
+    conversation_id = db.Column(db.Integer, db.ForeignKey('conversation.id'))
+
+    def __repr__(self):
+        return f'<Message {self.id}>'
 
 
 class User(UserMixin, db.Model):
@@ -35,7 +75,7 @@ class User(UserMixin, db.Model):
     wechat = db.Column(db.String(50), nullable=True)
     gender = db.Column(db.String(10), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
+    messages_sent = db.relationship('Message', foreign_keys='Message.sender_id', backref='sender', lazy='dynamic')
     # 关系
     tags = db.relationship('Tag', secondary=user_tags, lazy='subquery',
                            backref=db.backref('users', lazy=True))
