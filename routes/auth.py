@@ -1,7 +1,8 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
+from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app, jsonify
 from flask_login import login_user, logout_user, current_user
 from models import db, User, Tag
 from werkzeug.utils import secure_filename
+from utils.password_validator import validate_password
 import os
 import uuid
 
@@ -22,11 +23,16 @@ def register():
         # 检查用户是否已存在
         if User.query.filter_by(username=username).first():
             flash('用户名已存在')
-            return render_template('register.html', tags=Tag.query.all())
-
-        # 只有当邮箱不为空时才检查重复
+            return render_template('register.html', tags=Tag.query.all())        # 只有当邮箱不为空时才检查重复
         if email and User.query.filter_by(email=email).first():
             flash('邮箱已被注册')
+            return render_template('register.html', tags=Tag.query.all())
+
+        # 密码强度验证
+        password_result = validate_password(password, username, email)
+        if not password_result['is_valid']:
+            for error in password_result['errors']:
+                flash(error, 'error')
             return render_template('register.html', tags=Tag.query.all())
 
         # 处理头像选择
@@ -116,3 +122,21 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('auth.login'))
+
+@auth_bp.route('/api/validate-password', methods=['POST'])
+def api_validate_password():
+    """API端点：验证密码强度"""
+    data = request.get_json()
+    password = data.get('password', '')
+    username = data.get('username', '')
+    email = data.get('email', '')
+    
+    # 验证密码
+    result = validate_password(password, username, email)
+    
+    # 添加强度信息
+    from utils.password_validator import PasswordValidator
+    strength_info = PasswordValidator.get_strength_info(result['strength'])
+    result['strength_info'] = strength_info
+    
+    return jsonify(result)

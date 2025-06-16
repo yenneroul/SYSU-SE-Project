@@ -19,8 +19,7 @@ class Config:
         '创业者', '艺术家', '宠物爱好者', '游戏玩家', '健身达人'
 
     ]
-    
-    # 预设头像
+      # 预设头像
     PRESET_AVATARS = [
         '/static/avatars/presets/avatar1.png',
         '/static/avatars/presets/avatar2.png',

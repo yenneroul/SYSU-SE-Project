@@ -224,8 +224,7 @@ class Report(db.Model):
     handled_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     handled_at = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    # 关联用户
+      # 关联用户
     reporter = db.relationship('User', foreign_keys=[reporter_id])
     reported_user = db.relationship('User', foreign_keys=[reported_user_id])
     reported_post = db.relationship('Post', foreign_keys=[reported_post_id])

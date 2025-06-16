@@ -45,10 +45,10 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             {{ current_user.username }}
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                        </a>                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                             <!-- 假设你的用户蓝图名为 'user'，个人主页路由为 'profile' -->
                             <li><a class="dropdown-item" href="{{ url_for('user.profile', user_id=current_user.id) }}">我的主页</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('user.security_settings') }}">🔒 安全设置</a></li>
                             <li><hr class="dropdown-divider"></li>
                              <!-- 假设你的认证蓝图名为 'auth'，登出路由为 'logout' -->
                             <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">退出</a></li>

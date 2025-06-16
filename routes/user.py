@@ -6,6 +6,8 @@ import os
 import uuid
 
 from utils.user_vector import build_vocab, update_user_vector
+from utils.password_validator import validate_password
+from werkzeug.security import check_password_hash
 
 user_bp = Blueprint('user', __name__)
 
@@ -160,3 +162,70 @@ def recommend_users():
     users_with_similarity = scored_users[:10]
 
     return render_template('recommendations.html', users_with_similarity=users_with_similarity)
+
+@user_bp.route('/change-password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    """修改密码页面"""
+    if request.method == 'POST':
+        current_password = request.form.get('current_password', '').strip()
+        new_password = request.form.get('new_password', '').strip()
+        confirm_password = request.form.get('confirm_password', '').strip()
+        
+        # 验证当前密码
+        if not current_user.check_password(current_password):
+            flash('当前密码错误', 'error')
+            return render_template('user/change_password.html')
+        
+        # 验证新密码确认
+        if new_password != confirm_password:
+            flash('两次输入的新密码不一致', 'error')
+            return render_template('user/change_password.html')
+        
+        # 检查新密码是否与当前密码相同
+        if current_user.check_password(new_password):
+            flash('新密码不能与当前密码相同', 'error')
+            return render_template('user/change_password.html')
+        
+        # 验证新密码强度
+        password_result = validate_password(
+            new_password, 
+            current_user.username, 
+            current_user.email
+        )
+        
+        if not password_result['is_valid']:
+            for error in password_result['errors']:
+                flash(error, 'error')
+            return render_template('user/change_password.html')
+        
+        # 显示警告信息（如果有）
+        for warning in password_result['warnings']:
+            flash(warning, 'warning')
+        
+        # 更新密码
+        try:
+            current_user.set_password(new_password)
+            db.session.commit()
+            
+            flash('密码修改成功！', 'success')
+            
+            # 可选：强制用户重新登录
+            # logout_user()
+            # flash('密码已修改，请重新登录', 'info')
+            # return redirect(url_for('auth.login'))
+            
+            return redirect(url_for('user.profile', user_id=current_user.id))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash('密码修改失败，请重试', 'error')
+            return render_template('user/change_password.html')
+    
+    return render_template('user/change_password.html')
+
+@user_bp.route('/security')
+@login_required
+def security_settings():
+    """安全设置页面"""
+    return render_template('user/security.html')

@@ -96,23 +96,23 @@ def send_message(recipient_username):
         flash('你不能给自己发送消息。')
         return redirect(url_for('user.profile', user_id=recipient.id))  # 假设用户个人页面的路由是 'user.profile'
 
-    body = request.form.get('body')
+    body = request.form.get('body', '').strip()
 
     # 检查是否已存在当前用户和接收者之间的会话
     conversation = db.session.query(Conversation).filter(
-        Conversation.participants.any(id=current_user.id)
-    ).filter(
+        Conversation.participants.any(id=current_user.id)    ).filter(
         Conversation.participants.any(id=recipient.id)
     ).filter(
         db.select(db.func.count(User.id)).where(User.conversations.any(id=Conversation.id)).scalar_subquery() == 2
     ).first()
-
+    
     if not conversation:
         # 如果没有会话，则创建一个新会话
         conversation = Conversation()
         conversation.participants.append(current_user)
         conversation.participants.append(recipient)
         db.session.add(conversation)
+        db.session.commit()  # 确保会话被保存并获得ID
 
     if not body:
         return redirect(url_for('message.view_conversation', conversation_id=conversation.id))

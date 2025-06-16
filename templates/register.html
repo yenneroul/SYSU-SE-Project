@@ -13,22 +13,27 @@
 
         <div class="form-group">
             <label for="email">邮箱(非必填):</label>
-            <input type="email" id="email" name="email"> </div>
-        <div class="form-group">
+            <input type="email" id="email" name="email"> </div>        <div class="form-group">
             <label for="password">密码:</label>
             <div class="password-input-container">
                 <input type="password" id="password" name="password" required autocomplete="off">
                 <span class="toggle-password" id="togglePassword"></span>
             </div>
-        </div>
-
-        <div class="form-group">
+            <!-- 密码强度指示器 -->
+            <div class="password-strength-container">
+                <div class="password-strength-bar">
+                    <div class="password-strength-progress"></div>
+                </div>
+                <div class="password-strength-text"></div>
+                <div class="password-suggestions"></div>
+            </div>
+        </div>        <div class="form-group">
             <label>性别:</label>
             <div class="gender-options">
-                <label>
+                <label class="gender-label">
                     <input type="radio" name="gender" value="male" required> 男
                 </label>
-                <label>
+                <label class="gender-label">
                     <input type="radio" name="gender" value="female" required> 女
                 </label>
             </div>
@@ -103,9 +108,7 @@
                 </label>
                 {% endfor %}
             </div>
-        </div>
-
-        <button type="submit" class="btn-primary">注册</button>
+        </div>        <button type="submit" class="btn-primary register-btn">注册</button>
     </form>
 
     <p><a href="{{ url_for('auth.login') }}">已有账号？点击登录</a></p>
@@ -114,6 +117,35 @@
 <script src="{{ url_for('static', filename='js/register.js') }}"></script>
 
 <style>
+/* 性别选项垂直对齐修复 */
+.gender-options {
+    display: flex;
+    gap: 20px;
+    margin-top: 8px;
+}
+
+.gender-label {
+    display: flex;
+    align-items: center; /* 让单选按钮和文字垂直居中对齐 */
+    margin: 0;
+    cursor: pointer;
+    font-weight: normal !important;
+}
+
+.gender-label input[type="radio"] {
+    margin-right: 8px;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+/* 注册按钮样式 */
+.register-btn {
+    width: 100%;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+/* 头像选项样式 */
 .avatar-options {
     border: 1px solid #ddd;
     border-radius: 8px;
@@ -207,4 +239,19 @@
     border-radius: 5px;
 }
 </style>
+
+<!-- 引入密码强度检测 -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/password-strength.css') }}">
+<script src="{{ url_for('static', filename='js/password-strength.js') }}"></script>
+
+<script>
+// 初始化密码强度检测
+document.addEventListener('DOMContentLoaded', function() {
+    new PasswordStrengthChecker({
+        passwordInput: '#password',
+        realTimeCheck: true,
+        showSuggestions: true
+    });
+});
+</script>
 {% endblock %}

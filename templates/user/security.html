@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+
+{% block title %}安全设置{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="security-settings">
+        <h2>安全设置</h2>
+        
+        <!-- 密码管理 -->
+        <div class="security-card">
+            <h3>🔐 密码管理</h3>
+            
+            <div class="security-item">
+                <div class="security-item-info">
+                    <div class="security-item-title">修改密码</div>
+                    <div class="security-item-desc">定期更换密码可以提高账户安全性</div>
+                </div>
+                <div class="security-item-action">
+                    <a href="{{ url_for('user.change_password') }}" class="btn btn-primary">修改密码</a>
+                </div>
+            </div>
+            
+            {% if current_user.password_hash %}
+            <div class="security-item">
+                <div class="security-item-info">
+                    <div class="security-item-title">密码强度</div>
+                    <div class="security-item-desc">当前密码强度评估</div>
+                </div>
+                <div class="security-item-action">
+                    <span class="badge badge-success">已设置</span>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- 账户信息 -->
+        <div class="security-card">
+            <h3>👤 账户信息</h3>
+            
+            <div class="security-item">
+                <div class="security-item-info">
+                    <div class="security-item-title">用户名</div>
+                    <div class="security-item-desc">{{ current_user.username }}</div>
+                </div>
+                <div class="security-item-action">
+                    <a href="{{ url_for('user.edit_profile') }}" class="btn btn-secondary">编辑资料</a>
+                </div>
+            </div>
+            
+            {% if current_user.email %}
+            <div class="security-item">
+                <div class="security-item-info">
+                    <div class="security-item-title">邮箱地址</div>
+                    <div class="security-item-desc">{{ current_user.email }}</div>
+                </div>
+                <div class="security-item-action">
+                    <span class="badge badge-success">已验证</span>
+                </div>
+            </div>
+            {% else %}
+            <div class="security-item">
+                <div class="security-item-info">
+                    <div class="security-item-title">邮箱地址</div>
+                    <div class="security-item-desc">未设置邮箱，无法使用密码找回功能</div>
+                </div>
+                <div class="security-item-action">
+                    <a href="{{ url_for('user.edit_profile') }}" class="btn btn-warning">设置邮箱</a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- 登录安全 -->
+        <div class="security-card">
+            <h3>🛡️ 登录安全</h3>
+            
+            <div class="security-item">
+                <div class="security-item-info">
+                    <div class="security-item-title">最后登录时间</div>
+                    <div class="security-item-desc">显示您最近一次登录的时间</div>
+                </div>
+                <div class="security-item-action">
+                    <span class="text-muted">功能开发中</span>
+                </div>
+            </div>
+            
+            <div class="security-item">
+                <div class="security-item-info">
+                    <div class="security-item-title">登录历史</div>
+                    <div class="security-item-desc">查看最近的登录记录和异常登录提醒</div>
+                </div>
+                <div class="security-item-action">
+                    <span class="text-muted">功能开发中</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 隐私设置 -->
+        <div class="security-card">
+            <h3>🔒 隐私设置</h3>
+            
+            <div class="security-item">
+                <div class="security-item-info">
+                    <div class="security-item-title">联系方式显示</div>
+                    <div class="security-item-desc">控制其他用户是否可以看到您的联系方式</div>
+                </div>
+                <div class="security-item-action">
+                    <a href="{{ url_for('user.edit_profile') }}" class="btn btn-secondary">管理</a>
+                </div>
+            </div>
+            
+            <div class="security-item">
+                <div class="security-item-info">
+                    <div class="security-item-title">个人资料可见性</div>
+                    <div class="security-item-desc">控制个人资料对其他用户的可见程度</div>
+                </div>
+                <div class="security-item-action">
+                    <span class="text-muted">功能开发中</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 危险操作 -->
+        <div class="security-card border-danger">
+            <h3 class="text-danger">⚠️ 危险操作</h3>
+            
+            <div class="security-item">
+                <div class="security-item-info">
+                    <div class="security-item-title">注销账户</div>
+                    <div class="security-item-desc">永久删除您的账户和所有相关数据，此操作不可恢复</div>
+                </div>
+                <div class="security-item-action">
+                    <button class="btn btn-danger" onclick="confirmDeleteAccount()">注销账户</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/password-strength.css') }}">
+
+<script>
+function confirmDeleteAccount() {
+    if (confirm('确定要注销账户吗？此操作将永久删除您的所有数据，且不可恢复！')) {
+        if (confirm('请再次确认：您真的要删除账户吗？')) {
+            // 这里可以添加注销账户的逻辑
+            alert('账户注销功能正在开发中...');
+        }
+    }
+}
+</script>
+
+<style>
+.container {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 20px;
+}
+
+.security-settings h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #495057;
+}
+
+.border-danger {
+    border: 1px solid #dc3545 !important;
+}
+
+.text-danger {
+    color: #dc3545 !important;
+}
+
+.text-muted {
+    color: #6c757d !important;
+}
+
+.badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.badge-success {
+    background-color: #28a745;
+    color: white;
+}
+
+.badge-warning {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.btn-warning {
+    background-color: #ffc107;
+    color: #212529;
+    border-color: #ffc107;
+}
+
+.btn-warning:hover {
+    background-color: #e0a800;
+    border-color: #d39e00;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+    border-color: #dc3545;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+</style>
+{% endblock %}
