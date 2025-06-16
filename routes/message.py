@@ -97,9 +97,6 @@ def send_message(recipient_username):
         return redirect(url_for('user.profile', user_id=recipient.id))  # 假设用户个人页面的路由是 'user.profile'
 
     body = request.form.get('body')
-    if not body:
-        flash('消息内容不能为空。')
-        return redirect(url_for('user.profile', user_id=recipient.id))
 
     # 检查是否已存在当前用户和接收者之间的会话
     conversation = db.session.query(Conversation).filter(
@@ -117,6 +114,9 @@ def send_message(recipient_username):
         conversation.participants.append(recipient)
         db.session.add(conversation)
 
+    if not body:
+        return redirect(url_for('message.view_conversation', conversation_id=conversation.id))
+
     # 创建新消息并关联到会话
     message = Message(body=body, sender_id=current_user.id, conversation_id=conversation.id)
     # 更新会话的最后消息时间
@@ -124,5 +124,4 @@ def send_message(recipient_username):
     db.session.add(message)
     db.session.commit()
 
-    flash('消息发送成功！')
     return redirect(url_for('message.view_conversation', conversation_id=conversation.id))
