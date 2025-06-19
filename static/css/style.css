@@ -18,7 +18,24 @@ body.auth-page {
     align-items: center;
     min-height: 100vh;
     padding: 20px;
-    background-color: #f8f9fa; /* 确保认证页面有背景色 */
+    background-image: url('/static/images/backgrounds/auth-bg.png');
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+    position: relative;
+}
+
+/* 添加一个遮罩层，使背景图片变暗，让表单更加突出 */
+body.auth-page::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4)); /* 渐变遮罩效果 */
+    z-index: 1;
 }
 
 /* 认证页面的主容器样式 */
@@ -27,6 +44,8 @@ body.auth-page {
     justify-content: center;
     width: 100%;
     padding: 0;
+    position: relative;
+    z-index: 2; /* 确保内容在遮罩层之上 */
 }
 
 /* 在认证页面隐藏导航栏 */
@@ -87,17 +106,77 @@ body.auth-page .navbar {
     margin: 0 auto; /* 修改为 0 auto 使其水平居中 */
     padding: 50px;
     background: white;
-    border-radius: 12px;
-    box-shadow: 0 5px 25px rgba(0,0,0,0.07);
-    border: 1px solid #e9ecef;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    border: none;
+    position: relative;
+    z-index: 2; /* 确保在遮罩层之上 */
+    backdrop-filter: blur(8px); /* 增强模糊效果 */
+    background-color: rgba(255, 255, 255, 0.92); /* 微调透明度 */
+    animation: fadeInUp 0.6s ease-out forwards;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .auth-container {
+        padding: 40px 30px;
+        margin: 0 15px;
+    }
+    
+    .auth-container h2 {
+        font-size: 28px;
+    }
+}
+
+@media (max-width: 480px) {
+    .auth-container {
+        padding: 30px 20px;
+    }
+    
+    .auth-form input[type="text"],
+    .auth-form input[type="email"],
+    .auth-form input[type="password"],
+    .auth-form input[type="url"] {
+        padding: 12px 14px;
+    }
+    
+    .btn-primary {
+        padding: 12px 16px;
+    }
+}
+
+/* 添加淡入上升动画 */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .auth-container h2 {
     text-align: center;
-    margin-bottom: 25px;
-    font-size: 28px;
-    font-weight: 600;
-    color: #343a40;
+    margin-bottom: 30px;
+    font-size: 32px;
+    font-weight: 700;
+    color: #2c3e50;
+    position: relative;
+    padding-bottom: 15px;
+}
+
+.auth-container h2::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #3498db, #2980b9);
+    border-radius: 3px;
 }
 
 /* 认证页面的警告消息样式 */
@@ -106,14 +185,17 @@ body.auth-page .navbar {
 }
 
 .auth-form .form-group {
-    margin-bottom: 25px;
+    margin-bottom: 28px;
+    position: relative;
 }
 
 .auth-form label {
     display: block;
-    margin-bottom: 8px;
-    font-weight: bold;
+    margin-bottom: 10px;
+    font-weight: 600;
     font-size: 15px;
+    color: #2c3e50;
+    letter-spacing: 0.3px;
 }
 
 .auth-form input[type="text"],
@@ -121,17 +203,20 @@ body.auth-page .navbar {
 .auth-form input[type="password"],
 .auth-form input[type="url"] {
     width: 100%;
-    padding: 12px;
-    border: 1px solid #ced4da;
-    border-radius: 6px;
+    padding: 14px 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
     font-size: 16px;
-    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+    transition: all 0.25s ease;
+    background-color: #f8f9fa;
+    color: #495057;
 }
 
 .auth-form input:focus {
-    border-color: #80bdff;
+    border-color: #3498db;
     outline: 0;
-    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    background-color: #fff;
 }
 
 /* 解决联系方式选择框过小的问题 */
@@ -205,20 +290,31 @@ body.auth-page .navbar {
 
 /* 按钮 */
 .btn-primary {
-    background: #3498db;
+    background: linear-gradient(135deg, #3498db, #2980b9);
     color: white;
-    padding: 12px 20px;
+    padding: 14px 20px;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     cursor: pointer;
     font-size: 18px;
     font-weight: bold;
     width: 100%;
-    transition: background 0.3s;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
 }
 
 .btn-primary:hover {
-    background: #2980b9;
+    background: linear-gradient(135deg, #2980b9, #3498db);
+    box-shadow: 0 7px 20px rgba(52, 152, 219, 0.5);
+    transform: translateY(-3px);
+}
+
+.btn-primary:active {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(52, 152, 219, 0.4);
 }
 
 /* 发布动态表单 */
@@ -663,3 +759,56 @@ body.auth-page .navbar {
     width: 60px;
     height: 60px;
 }
+
+
+.post-list {
+    margin-top: 20px;
+}
+
+.post-list .card {
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.alert-info {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+/* 认证页面链接样式 */
+.auth-container p {
+    text-align: center;
+    margin-top: 25px;
+    font-size: 15px;
+    color: #555;
+}
+
+.auth-container p a {
+    color: #3498db;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s;
+    position: relative;
+    padding-bottom: 2px;
+}
+
+.auth-container p a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: #3498db;
+    transition: width 0.3s ease;
+}
+
+.auth-container p a:hover {
+    color: #2980b9;
+}
+
+.auth-container p a:hover::after {
+    width: 100%;
+}
+

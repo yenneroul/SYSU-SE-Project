@@ -1,4 +1,8 @@
-from flask import Blueprint, request, redirect, url_for, jsonify
+# Add at the top of the file
+from flask import Blueprint
+bp = Blueprint('post', __name__)
+
+from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from models import db, Post, Like
 from datetime import datetime
@@ -7,9 +11,7 @@ import pytz  # 引入 pytz 库
 # 定义中国时区
 CHINA_TZ = pytz.timezone('Asia/Shanghai')
 
-post_bp = Blueprint('post', __name__)
-
-@post_bp.route('/create', methods=['POST'])
+@bp.route('/create', methods=['POST'])
 @login_required
 def create_post():
     content = request.form['content']
@@ -25,7 +27,7 @@ def create_post():
 
     return redirect(url_for('index'))
 
-@post_bp.route('/like/<int:post_id>', methods=['POST'])
+@bp.route('/like/<int:post_id>', methods=['POST'])
 @login_required
 def like_post(post_id):
     post = Post.query.get_or_404(post_id)
@@ -47,7 +49,7 @@ def like_post(post_id):
     return jsonify({'likes_count': post.likes_count})
 
 
-@post_bp.route('/delete/<int:post_id>', methods=['POST'])
+@bp.route('/delete/<int:post_id>', methods=['POST'])
 @login_required
 def delete_post(post_id):
     post = Post.query.get_or_404(post_id)
@@ -64,3 +66,15 @@ def delete_post(post_id):
     db.session.commit()
     
     return jsonify({'success': True, 'message': '动态已删除'})
+
+
+@bp.route('/search')
+@login_required
+def search():
+    query = request.args.get('query', '')
+    # 搜索当前用户动态
+    posts = Post.query.filter(
+        Post.author == current_user,
+        Post.content.ilike(f'%{query}%')
+    ).order_by(Post.created_at.desc()).all()
+    return render_template('search_results.html', posts=posts, query=query)

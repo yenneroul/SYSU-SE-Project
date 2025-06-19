@@ -2,7 +2,23 @@
 
 {% block content %}
 <div class="container">
-    <!-- 发布动态 -->    <div class="post-form">
+    <div class="posts-container">
+        {# 在导航栏区域添加 #}
+        <div class="navbar-search mb-4">
+            <form action="{{ url_for('post.search') }}" method="GET">
+                <div class="input-group">
+                    <input type="search" name="query" class="form-control" placeholder="搜索我的动态..."
+                           aria-label="Search">
+                    <button class="btn btn-outline-success" type="submit">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        {# 在已有内容前添加搜索框 #}
+        
+    <!-- 发布动态 -->    <div class="post-form mb-4">
         <h3>发布动态</h3>
         <form method="POST" action="{{ url_for('post.create_post') }}">
             <textarea name="content" placeholder="分享你的想法..." required></textarea>
@@ -14,7 +30,7 @@
     </div>
     
     <!-- 动态列表 -->
-    <div class="posts-container">
+    
         {% if posts %}
             {% for post in posts %}            <div class="post-card">
                 <div class="post-header">

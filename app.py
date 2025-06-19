@@ -37,7 +37,8 @@ def create_app():
 
     from routes.auth import auth_bp
     from routes.user import user_bp
-    from routes.post import post_bp
+    # Change import to match the blueprint name
+    from routes.post import bp as post_bp
     from routes.follow import follow_bp
     from routes.message import message_bp
     from routes.admin import admin_bp
@@ -45,6 +46,7 @@ def create_app():
     app.register_blueprint(message_bp, url_prefix='/messages')
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(user_bp, url_prefix='/user')
+    # In create_app()
     app.register_blueprint(post_bp, url_prefix='/post')
     app.register_blueprint(follow_bp, url_prefix='/follow')
     app.register_blueprint(admin_bp, url_prefix='/admin')
