@@ -165,50 +165,11 @@ def edit_profile():
 @user_bp.route('/recommendations')
 @login_required
 def recommend_users():
-    from utils.user_vector import build_vocab, profile_to_vector, cosine_similarity
-
-    # 获取当前用户已关注的用户ID列表
-    # 假设你有一个Follow模型来处理关注关系
-    followed_user_ids = set()
-    if hasattr(current_user, 'following'):
-        followed_user_ids = {user.id for user in current_user.following}
-    # 或者如果你有其他的关注关系表，比如：
-    # followed_user_ids = {f.followed_id for f in Follow.query.filter_by(follower_id=current_user.id).all()}
-
-    users = User.query.all()
-
-    # 缓存词汇表以提高性能
-    if not hasattr(current_app, 'user_vocab'):
-        current_app.user_vocab = build_vocab(users)
-    vocab = current_app.user_vocab
-
-    # 生成当前用户的向量
-    target_vector = profile_to_vector(current_user, vocab)
-
-    scored_users = []
-    for user in users:
-        # 排除当前用户自己和已经关注的用户
-        if (user.id == current_user.id or
-                user.id in followed_user_ids or
-                not user.vector):
-            continue
-
-        try:
-            user_vec = list(map(int, user.vector.split(',')))
-            # 确保向量长度匹配
-            if len(user_vec) != len(target_vector):
-                continue
-            sim = cosine_similarity(target_vector, user_vec)
-            scored_users.append((user, sim))
-        except (ValueError, IndexError, AttributeError):
-            # 处理向量格式错误或长度不匹配的情况
-            continue
-
-    # 按相似度排序并保留分数
-    scored_users.sort(key=lambda x: x[1], reverse=True)
-    users_with_similarity = scored_users[:10]
-
-    return render_template('recommendations.html', users_with_similarity=users_with_similarity)
+    """标签匹配页面"""
+    # 获取所有标签用于显示选择器
+    all_tags = Tag.query.all()
+    
+    return render_template('recommendations.html', all_tags=all_tags)
 @user_bp.route('/change-password', methods=['GET', 'POST'])
 @login_required
 def change_password():
@@ -275,3 +236,68 @@ def change_password():
 def security_settings():
     """安全设置页面"""
     return render_template('user/security.html')
+
+@user_bp.route('/search_by_tags', methods=['POST'])
+@login_required
+def search_by_tags():
+    """根据选中的标签搜索用户"""
+    data = request.get_json()
+    tag_ids = data.get('tag_ids', [])
+    
+    print(f"搜索标签IDs: {tag_ids}")  # 调试信息
+    
+    if not tag_ids:
+        return jsonify({'users': []})
+    
+    # 转换为整数
+    try:
+        tag_ids = [int(tag_id) for tag_id in tag_ids]
+    except ValueError:
+        return jsonify({'users': []})
+    
+    # 查询包含这些标签的用户（排除自己）
+    users = db.session.query(User)\
+        .join(User.tags)\
+        .filter(Tag.id.in_(tag_ids))\
+        .filter(User.id != current_user.id)\
+        .distinct()\
+        .all()
+    
+    print(f"找到用户数量（包含已关注）: {len(users)}")  # 调试信息
+    
+    # 过滤掉已关注的用户
+    filtered_users = [user for user in users if not current_user.is_following(user)]
+    
+    # 计算匹配度并排序
+    users_with_score = []
+    for user in filtered_users:
+        user_tag_ids = [tag.id for tag in user.tags]
+        matched_count = len(set(tag_ids) & set(user_tag_ids))
+        
+        users_with_score.append({
+            'user': user,
+            'score': matched_count
+        })
+    
+    # 按匹配度降序排序
+    users_with_score.sort(key=lambda x: x['score'], reverse=True)
+    users_with_score = users_with_score[:20]
+
+    # 构建返回数据
+    users_data = []
+    for item in users_with_score:
+        user = item['user']
+        users_data.append({
+            'id': user.id,
+            'username': user.username,
+            'bio': user.bio,
+            'avatar_url': user.avatar_url or '/static/default-avatar.svg',
+            'posts_count': user.posts_count,
+            'followed_count': user.followed_count,
+            'followers_count': user.followers_count,
+            'tags': [{'id': tag.id, 'name': tag.name} for tag in user.tags],
+            'is_following': current_user.is_following(user),
+            'match_score': item['score']
+        })
+    
+    return jsonify({'users': users_data})
