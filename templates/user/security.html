@@ -62,64 +62,13 @@
             <div class="security-item">
                 <div class="security-item-info">
                     <div class="security-item-title">邮箱地址</div>
-                    <div class="security-item-desc">未设置邮箱，无法使用密码找回功能</div>
+
                 </div>
                 <div class="security-item-action">
                     <a href="{{ url_for('user.edit_profile') }}" class="btn btn-warning">设置邮箱</a>
                 </div>
             </div>
-            {% endif %}
-        </div>
-        
-        <!-- 登录安全 -->
-        <div class="security-card">
-            <h3>🛡️ 登录安全</h3>
-            
-            <div class="security-item">
-                <div class="security-item-info">
-                    <div class="security-item-title">最后登录时间</div>
-                    <div class="security-item-desc">显示您最近一次登录的时间</div>
-                </div>
-                <div class="security-item-action">
-                    <span class="text-muted">功能开发中</span>
-                </div>
-            </div>
-            
-            <div class="security-item">
-                <div class="security-item-info">
-                    <div class="security-item-title">登录历史</div>
-                    <div class="security-item-desc">查看最近的登录记录和异常登录提醒</div>
-                </div>
-                <div class="security-item-action">
-                    <span class="text-muted">功能开发中</span>
-                </div>
-            </div>
-        </div>
-        
-        <!-- 隐私设置 -->
-        <div class="security-card">
-            <h3>🔒 隐私设置</h3>
-            
-            <div class="security-item">
-                <div class="security-item-info">
-                    <div class="security-item-title">联系方式显示</div>
-                    <div class="security-item-desc">控制其他用户是否可以看到您的联系方式</div>
-                </div>
-                <div class="security-item-action">
-                    <a href="{{ url_for('user.edit_profile') }}" class="btn btn-secondary">管理</a>
-                </div>
-            </div>
-            
-            <div class="security-item">
-                <div class="security-item-info">
-                    <div class="security-item-title">个人资料可见性</div>
-                    <div class="security-item-desc">控制个人资料对其他用户的可见程度</div>
-                </div>
-                <div class="security-item-action">
-                    <span class="text-muted">功能开发中</span>
-                </div>
-            </div>
-        </div>
+            {% endif %}        </div>
         
         <!-- 危险操作 -->
         <div class="security-card border-danger">
