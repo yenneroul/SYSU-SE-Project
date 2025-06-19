@@ -29,7 +29,7 @@
                     <input type="text" id="phone" name="phone" value="{{ current_user.phone or '' }}">
                     <label class="show-option">
                         <input type="checkbox" name="show_phone" {% if current_user.show_phone %}checked{% endif %}>
-                        <span>公开显示</span>
+                        <span>对所有人可见 (否则仅互关好友可见)</span>
                     </label>
                 </div>
             </div>
@@ -40,7 +40,7 @@
                     <input type="text" id="qq" name="qq" value="{{ current_user.qq or '' }}">
                     <label class="show-option">
                         <input type="checkbox" name="show_qq" {% if current_user.show_qq %}checked{% endif %}>
-                        <span>公开显示</span>
+                        <span>对所有人可见 (否则仅互关好友可见)</span>
                     </label>
                 </div>
             </div>
@@ -51,7 +51,7 @@
                     <input type="text" id="wechat" name="wechat" value="{{ current_user.wechat or '' }}">
                     <label class="show-option">
                         <input type="checkbox" name="show_wechat" {% if current_user.show_wechat %}checked{% endif %}>
-                        <span>公开显示</span>
+                        <span>对所有人可见 (否则仅互关好友可见)</span>
                     </label>
                 </div>
             </div>
@@ -62,7 +62,7 @@
                     <input type="email" id="email" name="email" value="{{ current_user.email or '' }}">
                     <label class="show-option">
                         <input type="checkbox" name="show_email" {% if current_user.show_email %}checked{% endif %}>
-                        <span>公开显示</span>
+                        <span>对所有人可见 (否则仅互关好友可见)</span>
                     </label>
                 </div>
             </div>

@@ -43,23 +43,25 @@
                         联系方式
                     {% endif %}
                 </h4>
-                {% if user.phone and (user.id == current_user.id or user.show_phone) %}
+                {% if user.phone and (user.id == current_user.id or user.show_phone or current_user.is_mutual_following(user)) %}
                     <p class="user-detail contact-detail">📞 电话: {{ user.phone }}</p>
                 {% endif %}
-                {% if user.qq and (user.id == current_user.id or user.show_qq) %}
+                {% if user.qq and (user.id == current_user.id or user.show_qq or current_user.is_mutual_following(user)) %}
                     <p class="user-detail contact-detail">🐧 QQ: {{ user.qq }}</p>
                 {% endif %}
-                {% if user.wechat and (user.id == current_user.id or user.show_wechat) %}
+                {% if user.wechat and (user.id == current_user.id or user.show_wechat or current_user.is_mutual_following(user)) %}
                     <p class="user-detail contact-detail">💬 微信: {{ user.wechat }}</p>
                 {% endif %}
-                {% if user.email and (user.id == current_user.id or user.show_email) %}
+                {% if user.email and (user.id == current_user.id or user.show_email or current_user.is_mutual_following(user)) %}
                     <p class="user-detail contact-detail">📧 邮箱: {{ user.email }}</p>
                 {% endif %}
-                {% if not ((user.phone and (user.id == current_user.id or user.show_phone)) or 
-                           (user.qq and (user.id == current_user.id or user.show_qq)) or 
-                           (user.wechat and (user.id == current_user.id or user.show_wechat)) or 
-                           (user.email and (user.id == current_user.id or user.show_email))) %}
-                    <p class="no-contact">暂未设置联系方式或联系方式未公开</p>
+                {% if not (
+                    (user.phone and (user.id == current_user.id or user.show_phone or current_user.is_mutual_following(user))) or
+                    (user.qq and (user.id == current_user.id or user.show_qq or current_user.is_mutual_following(user))) or
+                    (user.wechat and (user.id == current_user.id or user.show_wechat or current_user.is_mutual_following(user))) or
+                    (user.email and (user.id == current_user.id or user.show_email or current_user.is_mutual_following(user)))
+                ) %}
+                    <p class="no-contact">暂未设置联系方式或不符合查看权限</p>
                 {% endif %}
             </div>
 <div class="profile-stats">
