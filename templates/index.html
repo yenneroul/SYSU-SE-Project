@@ -17,14 +17,34 @@
         </div>
         
         {# 在已有内容前添加搜索框 #}
-        
-    <!-- 发布动态 -->    <div class="post-form mb-4">
+          <!-- 发布动态 -->
+    <div class="post-form mb-4">
         <h3>发布动态</h3>
         <form method="POST" action="{{ url_for('post.create_post') }}">
-            <textarea name="content" placeholder="分享你的想法..." required></textarea>
+            <div class="post-input-container">
+                <textarea name="content" id="postContent" placeholder="分享你的想法..." required></textarea>
+                <button type="button" class="emoji-btn-post" id="emojiBtnPost" title="选择表情">😊</button>
+            </div>
             <div class="form-actions">
                 <small class="text-muted">按 Enter 发送，Shift+Enter 换行</small>
                 <button type="submit" class="btn-primary">发布</button>
+            </div>
+            
+            <!-- 表情选择器 -->
+            <div class="emoji-picker-post" id="emojiPickerPost" style="display: none;">
+                <div class="emoji-categories">
+                    <button type="button" class="emoji-category-btn active" data-category="smileys">😊</button>
+                    <button type="button" class="emoji-category-btn" data-category="people">👤</button>
+                    <button type="button" class="emoji-category-btn" data-category="animals">🐶</button>
+                    <button type="button" class="emoji-category-btn" data-category="food">🍎</button>
+                    <button type="button" class="emoji-category-btn" data-category="activities">⚽</button>
+                    <button type="button" class="emoji-category-btn" data-category="travel">✈️</button>
+                    <button type="button" class="emoji-category-btn" data-category="objects">📱</button>
+                    <button type="button" class="emoji-category-btn" data-category="symbols">❤️</button>
+                </div>
+                <div class="emoji-grid-post" id="emojiGridPost">
+                    <!-- 表情将通过 JavaScript 动态加载 -->
+                </div>
             </div>
         </form>
     </div>

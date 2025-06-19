@@ -324,10 +324,18 @@ body.auth-page .navbar {
     border-radius: 10px;
     margin-bottom: 20px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: relative;
+}
+
+.post-input-container {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
 }
 
 .post-form textarea {
-    width: 100%;
+    flex: 1;
     padding: 15px;
     border: 1px solid #ddd;
     border-radius: 5px;
@@ -335,6 +343,51 @@ body.auth-page .navbar {
     min-height: 100px;
     margin-bottom: 10px;
     font-family: inherit;
+}
+
+.emoji-btn-post {
+    background: #f8f9fa;
+    color: #495057;
+    border: 1px solid #dee2e6;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: all 0.2s ease;
+    margin-bottom: 10px;
+}
+
+.emoji-btn-post:hover {
+    background: #e9ecef;
+    border-color: #007bff;
+}
+
+/* 发动态表情选择器 */
+.emoji-picker-post {
+    position: absolute;
+    top: 120px;
+    right: 20px;
+    width: 320px;
+    max-height: 280px;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.emoji-grid-post {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 4px;
+    padding: 8px;
+    max-height: 200px;
+    overflow-y: auto;
 }
 
 .post-form input[type="url"] {

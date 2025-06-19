@@ -6,7 +6,8 @@
         <h2>与 {{ recipient.username }} 的对话</h2>
         <a href="{{ url_for('message.message_inbox') }}" class="btn btn-secondary btn-sm">返回收件箱</a>
     </div>
-      <div class="chat-window" id="chatWindow">
+    
+    <div class="chat-window" id="chatWindow">
         {% if has_more %}
             <div class="load-more-container">
                 <button id="loadMoreBtn" class="load-more-btn" data-page="{{ current_page + 1 }}">
@@ -28,12 +29,32 @@
                 </div>
             {% endfor %}
         </div>
-    </div><form id="chatForm" class="chat-form">
+    </div>
+
+    <form id="chatForm" class="chat-form">
         <div class="chat-input-container">
             <textarea name="body" class="chat-input" rows="1" placeholder="输入消息..." required></textarea>
+            <button type="button" class="emoji-btn" id="emojiBtn" title="选择表情">😊</button>
             <button type="submit" class="send-btn">发送</button>
         </div>
         <small class="input-hint">按 Enter 发送，Shift+Enter 换行</small>
+        
+        <!-- 表情选择器 -->
+        <div class="emoji-picker" id="emojiPicker" style="display: none;">
+            <div class="emoji-categories">
+                <button type="button" class="emoji-category-btn active" data-category="smileys">😊</button>
+                <button type="button" class="emoji-category-btn" data-category="people">👤</button>
+                <button type="button" class="emoji-category-btn" data-category="animals">🐶</button>
+                <button type="button" class="emoji-category-btn" data-category="food">🍎</button>
+                <button type="button" class="emoji-category-btn" data-category="activities">⚽</button>
+                <button type="button" class="emoji-category-btn" data-category="travel">✈️</button>
+                <button type="button" class="emoji-category-btn" data-category="objects">📱</button>
+                <button type="button" class="emoji-category-btn" data-category="symbols">❤️</button>
+            </div>
+            <div class="emoji-grid" id="emojiGrid">
+                <!-- 表情将通过 JavaScript 动态加载 -->
+            </div>
+        </div>
     </form>
 </div>
 
@@ -120,12 +141,14 @@
     padding: 15px 20px;
     background: white;
     border-top: 1px solid #dee2e6;
+    position: relative;
 }
 
 .chat-input-container {
     display: flex;
     gap: 10px;
     align-items: flex-end;
+    position: relative;
 }
 
 .chat-input {
@@ -140,6 +163,26 @@
 
 .chat-input:focus {
     outline: none;
+    border-color: #007bff;
+}
+
+.emoji-btn {
+    background: #f8f9fa;
+    color: #495057;
+    border: 1px solid #dee2e6;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: all 0.2s ease;
+}
+
+.emoji-btn:hover {
+    background: #e9ecef;
     border-color: #007bff;
 }
 
@@ -159,6 +202,74 @@
 
 .send-btn:hover {
     background: #0056b3;
+}
+
+/* 表情选择器样式 */
+.emoji-picker {
+    position: absolute;
+    bottom: 55px;
+    right: 10px;
+    width: 300px;
+    max-height: 280px;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.emoji-categories {
+    display: flex;
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    padding: 8px;
+    gap: 4px;
+}
+
+.emoji-category-btn {
+    background: none;
+    border: none;
+    padding: 6px 8px;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.emoji-category-btn:hover {
+    background: #e9ecef;
+}
+
+.emoji-category-btn.active {
+    background: #007bff;
+    color: white;
+}
+
+.emoji-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 4px;
+    padding: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.emoji-item {
+    background: none;
+    border: none;
+    padding: 8px;
+    border-radius: 6px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.emoji-item:hover {
+    background: #f8f9fa;
 }
 
 .input-hint {
@@ -214,15 +325,113 @@
     opacity: 0.6;
     cursor: not-allowed;
 }
+
+/* 移动设备适配 */
+@media (max-width: 480px) {
+    .emoji-picker {
+        right: 5px;
+        left: 5px;
+        width: auto;
+        max-width: none;
+        bottom: 55px;
+    }
+}
 </style>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {    const chatWindow = document.getElementById('chatWindow');
+document.addEventListener('DOMContentLoaded', function() {
+    // 表情数据
+    const emojiData = {
+        smileys: ['😀','😃','😄','😁','😆','😅','😂','🤣','😊','😇','🙂','🙃','😉','😌','😍','🥰','😘','😗','😙','😚','😋','😛','😝','😜','🤪','🤨','🧐','🤓','😎','🤩','🥳','😏','😒','😞','😔','😟','😕','🙁','☹️','😣','😖','😫','😩','🥺'],
+        people: ['👶','🧒','👦','👧','🧑','👱','👨','🧔','👩','🧓','👴','👵','🙍','🙎','🙅','🙆','💁','🙋','🧏','🙇','🤦','🤷','👮','🕵️','💂','👷','🤴','👸','👳','👲','🧕','🤵','👰','🤰','🤱','👼','🎅','🤶','🦸','🦹','🧙','🧚','🧛','🧜','🧝'],
+        animals: ['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐽','🐸','🐵','🙈','🙉','🙊','🐒','🐔','🐧','🐦','🐤','🐣','🐥','🦆','🦅','🦉','🦇','🐺','🐗','🐴','🦄','🐝','🐛','🦋','🐌','🐞','🐜','🦟','🦗','🕷️','🦂','🐢','🐍','🦎','🦖','🦕','🐙','🦑','🦐','🦞','🦀','🐡','🐠','🐟','🐬','🐳','🐋','🦈','🐊','🐅','🐆','🦓','🦍','🦧','🐘','🦛','🦏','🐪','🐫','🦒','🦘','🐃','🐂','🐄','🐎','🐖','🐏','🐑','🦙','🐐','🦌','🐕','🐩','🦮','🐈','🐓','🦃','🦚','🦜','🦢','🦩','🕊️','🐇','🦝','🦨','🦡','🦦','🦥','🐁','🐀','🐿️','🦔'],
+        food: ['🍎','🍐','🍊','🍋','🍌','🍉','🍇','🍓','🫐','🍈','🍒','🍑','🥭','🍍','🥥','🥝','🍅','🍆','🥑','🥦','🥬','🥒','🌶️','🫑','🌽','🥕','🫒','🧄','🧅','🥔','🍠','🥐','🥯','🍞','🥖','🥨','🧀','🥚','🍳','🧈','🥞','🧇','🥓','🥩','🍗','🍖','🦴','🌭','🍔','🍟','🍕','🫓','🥪','🥙','🧆','🌮','🌯','🫔','🥗','🥘','🫕','🥫','🍝','🍜','🍲','🍛','🍣','🍱','🥟','🦪','🍤','🍙','🍚','🍘','🍥','🥠','🥮','🍢','🍡','🍧','🍨','🍦','🥧','🧁','🍰','🎂','🍮','🍭','🍬','🍫','🍿','🍩','🍪','🌰','🥜','🍯'],
+        activities: ['⚽','🏀','🏈','⚾','🥎','🎾','🏐','🏉','🥏','🎱','🪀','🏓','🏸','🏒','🏑','🥍','🏏','🪃','🥅','⛳','🪁','🏹','🎣','🤿','🥊','🥋','🎽','🛹','🛼','🛷','⛸️','🥌','🎿','⛷️','🏂','🪂','🏋️','🤼','🤸','⛹️','🤺','🤾','🏌️','🏇','🧘','🏄','🏊','🤽','🚣','🧗','🚵','🚴','🏆','🥇','🥈','🥉','🏅','🎖️','🏵️','🎗️','🎫','🎟️','🎪','🤹','🎭','🩰','🎨','🎬','🎤','🎧','🎼','🎵','🎶','🥽','🥼','🦺','👑','🎩','🎓','🧢','⛑️','📿','💄','💍','💎'],
+        travel: ['🚗','🚕','🚙','🚌','🚎','🏎️','🚓','🚑','🚒','🚐','🛻','🚚','🚛','🚜','🏍️','🛵','🚲','🛴','🛹','🛼','🚁','✈️','🛩️','🛫','🛬','🪂','💺','🚀','🛸','🚉','🚊','🚝','🚞','🚋','🚃','🚋','🚞','🚝','🚄','🚅','🚈','🚂','🚆','🚇','🚊','🚉','✈️','🛫','🛬','🛩️','💺','🚁','🚟','🚠','🚡','🛰️','🚀','🛸','🛎️','🧳','⌛','⏳','⌚','⏰','⏱️','⏲️','🕰️','🕛','🕧','🕐','🕜','🕑','🕝','🕒','🕞','🕓','🕟','🕔','🕠','🕕','🕡','🕖','🕢','🕗','🕣','🕘','🕤','🕙','🕥','🕚','🕦'],
+        objects: ['⌚','📱','📲','💻','⌨️','🖥️','🖨️','🖱️','🖲️','🕹️','🗜️','💽','💾','💿','📀','📼','📷','📸','📹','🎥','📽️','🎞️','📞','☎️','📟','📠','📺','📻','🎙️','🎚️','🎛️','🧭','⏱️','⏲️','⏰','🕰️','⌛','⏳','📡','🔋','🔌','💡','🔦','🕯️','🪔','🧯','🛢️','💸','💵','💴','💶','💷','💰','💳','💎','⚖️','🧰','🔧','🔨','⚒️','🛠️','⛏️','🔩','⚙️','🧱','⛓️','🧲','🔫','💣','🧨','🪓','🔪','🗡️','⚔️','🛡️','🚬','⚰️','⚱️','🏺','🔮','📿','🧿','💈','⚗️','🔭','🔬','🕳️','🩹','🩺','💊','💉','🧬','🦠','🧫','🧪','🌡️','🧹','🧺','🧻','🚽','🚰','🚿','🛁','🛀','🧼','🪒','🧽','🧴','🛎️','🔑','🗝️','🚪','🪑','🛋️','🛏️','🛌','🧸','🖼️','🛍️','🛒','🎁','🎈','🎏','🎀','🎊','🎉','🎎','🏮','🎐','🧧','✉️','📩','📨','📧','💌','📥','📤','📦','🏷️','📪','📫','📬','📭','📮','📯','📜','📃','📄','📑','📊','📈','📉','🗒️','🗓️','📅','📆','🗑️','📇','🗃️','🗳️','🗄️','📋','📁','📂','🗂️','🗞️','📰','📓','📔','📒','📕','📗','📘','📙','📚','📖','🔖','🧷','🔗','📎','🖇️','📐','📏','🧮','📌','📍','✂️','🖊️','🖋️','✒️','🖌️','🖍️','📝','✏️','🔍','🔎','🔏','🔐','🔒','🔓'],
+        symbols: ['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','❣️','💕','💞','💓','💗','💖','💘','💝','💟','☮️','✝️','☪️','🕉️','☸️','✡️','🔯','🕎','☯️','☦️','🛐','⛎','♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓','🆔','⚛️','🉑','☢️','☣️','📴','📳','🈶','🈚','🈸','🈺','🈷️','✴️','🆚','💮','🉐','㊙️','㊗️','🈴','🈵','🈹','🈲','🅰️','🅱️','🆎','🆑','🅾️','🆘','❌','⭕','🛑','⛔','📛','🚫','💯','💢','♨️','🚷','🚯','🚳','🚱','🔞','📵','🚭','❗','❕','❓','❔','‼️','⁉️','🔅','🔆','〽️','⚠️','🚸','🔱','⚜️','🔰','♻️','✅','🈯','💹','❇️','✳️','❎','🌐','💠','Ⓜ️','🌀','💤','🏧','🚾','♿','🅿️','🈳','🈂️','🛂','🛃','🛄','🛅','🚹','🚺','🚼','🚻','🚮','🎦','📶','🈁','🔣','ℹ️','🔤','🔡','🔠','🆖','🆗','🆙','🆒','🆕','🆓','0️⃣','1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣','🔟','🔢','#️⃣','*️⃣','⏏️','▶️','⏸️','⏯️','⏹️','⏺️','⏭️','⏮️','⏩','⏪','⏫','⏬','◀️','🔼','🔽','➡️','⬅️','⬆️','⬇️','↗️','↘️','↙️','↖️','↕️','↔️','↪️','↩️','⤴️','⤵️','🔀','🔁','🔂','🔄','🔃','🎵','🎶','➕','➖','➗','✖️','♾️','💲','💱','™️','©️','®️','〰️','➰','➿','🔚','🔙','🔛','🔝','🔜','✔️','☑️','🔘','⚪','⚫','🔴','🔵','🔺','🔻','🔸','🔹','🔶','🔷','🔳','🔲','▪️','▫️','◾','◽','◼️','◻️','⬛','⬜','🔈','🔇','🔉','🔊','🔔','🔕','📣','📢','👁️‍🗨️','💬','💭','🗯️','♠️','♣️','♥️','♦️','🃏','🎴','🀄','🕐','🕑','🕒','🕓','🕔','🕕','🕖','🕗','🕘','🕙','🕚','🕛','🕜','🕝','🕞','🕟','🕠','🕡','🕢','🕣','🕤','🕥','🕦','🕧']
+    };
+
+    const chatWindow = document.getElementById('chatWindow');
     const chatForm = document.getElementById('chatForm');
     const chatInput = document.querySelector('.chat-input');
     const messagesContainer = document.getElementById('messagesContainer');
     const loadMoreBtn = document.getElementById('loadMoreBtn');
     const conversationId = {{ conversation.id }};
+
+    // 聊天表情选择器功能
+    function initChatEmojiPicker() {
+        const emojiBtn = document.getElementById('emojiBtn');
+        const emojiPicker = document.getElementById('emojiPicker');
+        const emojiGrid = document.getElementById('emojiGrid');
+
+        if (!emojiBtn || !emojiPicker || !emojiGrid) {
+            return;
+        }
+
+        // 绑定表情按钮点击事件
+        emojiBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const isVisible = emojiPicker.style.display === 'block';
+            emojiPicker.style.display = isVisible ? 'none' : 'block';
+            if (!isVisible) {
+                loadChatEmojis('smileys');
+            }
+        });
+
+        // 绑定分类按钮点击事件
+        emojiPicker.querySelectorAll('.emoji-category-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                emojiPicker.querySelectorAll('.emoji-category-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                loadChatEmojis(this.dataset.category);
+            });
+        });
+
+        // 点击其他地方关闭表情选择器
+        document.addEventListener('click', function(e) {
+            if (!emojiPicker.contains(e.target) && e.target !== emojiBtn) {
+                emojiPicker.style.display = 'none';
+            }
+        });
+    }
+
+    // 加载聊天表情
+    function loadChatEmojis(category) {
+        const emojiGrid = document.getElementById('emojiGrid');
+        const emojis = emojiData[category] || [];
+        emojiGrid.innerHTML = '';
+        
+        emojis.forEach(emoji => {
+            const emojiElement = document.createElement('button');
+            emojiElement.className = 'emoji-item';
+            emojiElement.type = 'button';
+            emojiElement.textContent = emoji;
+            emojiElement.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                insertChatEmoji(emoji);
+            });
+            emojiGrid.appendChild(emojiElement);
+        });
+    }
+
+    // 插入表情到聊天输入框
+    function insertChatEmoji(emoji) {
+        const start = chatInput.selectionStart;
+        const end = chatInput.selectionEnd;
+        const text = chatInput.value;
+        
+        chatInput.value = text.substring(0, start) + emoji + text.substring(end);
+        chatInput.setSelectionRange(start + emoji.length, start + emoji.length);
+        chatInput.focus();
+        
+        // 触发输入事件以调整输入框高度
+        chatInput.dispatchEvent(new Event('input'));
+    }
     
     // 自动滚动到最新消息
     function scrollToBottom() {
@@ -306,7 +515,8 @@ document.addEventListener('DOMContentLoaded', function() {    const chatWindow =
             body: formData
         })
         .then(response => response.json())
-        .then(data => {            if (data.success) {
+        .then(data => {
+            if (data.success) {
                 // 添加新消息到消息容器
                 const messageHTML = createMessageHTML(data.message);
                 messagesContainer.insertAdjacentHTML('beforeend', messageHTML);
@@ -357,6 +567,9 @@ document.addEventListener('DOMContentLoaded', function() {    const chatWindow =
             }
         });
     }
+
+    // 初始化表情选择器
+    initChatEmojiPicker();
 });
 </script>
 {% endblock %}
