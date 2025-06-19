@@ -10,8 +10,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <title>{% block title %}标签连接{% endblock %} - LinkTag</title>
 </head>
-<body class="{% block body_class %}{% endblock %}">
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+<body class="{% block body_class %}{% endblock %}" style="margin: 0; padding: 0; background-color: #ffffff;">
+    <nav class="navbar navbar-expand-lg navbar-light" style="margin: 0;">
         <div class="container-fluid">
             <a class="navbar-brand" href="{{ url_for('index') }}">LinkTag</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -25,13 +25,8 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('discover') }}">发现</a>
-                    </li>                    <li class="nav-item">
-                        <!--
-                        修正之处:
-                        1. 蓝图名称是 'message'。
-                        2. 收件箱的函数名是 'message_inbox'。
-                        所以正确的 url_for 是 'message.message_inbox'。
-                        -->
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('message.message_inbox') }}">消息</a>
                     </li>
                     <li class="nav-item">
@@ -47,12 +42,11 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             {{ current_user.username }}
-                        </a>                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                            <!-- 假设你的用户蓝图名为 'user'，个人主页路由为 'profile' -->
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                             <li><a class="dropdown-item" href="{{ url_for('user.profile', user_id=current_user.id) }}">我的主页</a></li>
                             <li><a class="dropdown-item" href="{{ url_for('user.security_settings') }}">🔒 安全设置</a></li>
                             <li><hr class="dropdown-divider"></li>
-                             <!-- 假设你的认证蓝图名为 'auth'，登出路由为 'logout' -->
                             <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">退出</a></li>
                         </ul>
                     </li>
@@ -62,7 +56,7 @@
         </div>
     </nav>
 
-    <main class="container mt-4 {% if self.body_class() %}auth-main{% endif %}">
+    <main class="container" style="margin-top: 0; background-color: #ffffff;">
         {% if not self.body_class() %}
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
