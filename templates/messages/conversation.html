@@ -1,21 +1,362 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>与 {{ recipient.username }} 的对话</h1>
-    <div class="chat-window" style="height: 400px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; margin-bottom: 20px;">
-        {% for message in messages %}
-            <div class="message {% if message.sender == current_user %}text-end{% else %}text-start{% endif %}">
-                <small><strong>{{ message.sender.username }}</strong> - {{ message.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
-                <p style="background-color: {% if message.sender == current_user %}#dcf8c6{% else %}#f1f0f0{% endif %}; display: inline-block; padding: 10px; border-radius: 10px;">
-                    {{ message.body }}
-                </p>
+<div class="chat-container">
+    <div class="chat-header">
+        <h2>与 {{ recipient.username }} 的对话</h2>
+        <a href="{{ url_for('message.message_inbox') }}" class="btn btn-secondary btn-sm">返回收件箱</a>
+    </div>
+      <div class="chat-window" id="chatWindow">
+        {% if has_more %}
+            <div class="load-more-container">
+                <button id="loadMoreBtn" class="load-more-btn" data-page="{{ current_page + 1 }}">
+                    加载更多历史消息
+                </button>
             </div>
-        {% endfor %}
-    </div>    <form action="{{ url_for('message.view_conversation', conversation_id=conversation.id) }}" method="post">
-        <div class="mb-3">
-            <textarea name="body" class="form-control" rows="3" placeholder="输入回复..."></textarea>
-            <small class="text-muted">按 Enter 发送，Shift+Enter 换行</small>
+        {% endif %}
+        
+        <div id="messagesContainer">
+            {% for message in messages %}
+                <div class="message {% if message.sender == current_user %}message-sent{% else %}message-received{% endif %}">
+                    <div class="message-info">
+                        <span class="sender">{{ message.sender.username }}</span>
+                        <span class="timestamp">{{ message.timestamp.strftime('%m-%d %H:%M') }}</span>
+                    </div>
+                    <div class="message-bubble">
+                        {{ message.body }}
+                    </div>
+                </div>
+            {% endfor %}
         </div>
-        <button type="submit" class="btn btn-primary">发送</button>
+    </div><form id="chatForm" class="chat-form">
+        <div class="chat-input-container">
+            <textarea name="body" class="chat-input" rows="1" placeholder="输入消息..." required></textarea>
+            <button type="submit" class="send-btn">发送</button>
+        </div>
+        <small class="input-hint">按 Enter 发送，Shift+Enter 换行</small>
     </form>
+</div>
+
+<style>
+.chat-container {
+    max-width: 800px;
+    margin: 20px auto;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.chat-header h2 {
+    margin: 0;
+    color: #495057;
+    font-size: 1.2rem;
+}
+
+.chat-window {
+    height: 400px;
+    overflow-y: auto;
+    padding: 15px;
+    background: #f1f3f4;
+    scroll-behavior: smooth;
+}
+
+.message {
+    margin-bottom: 15px;
+    max-width: 70%;
+}
+
+.message-sent {
+    margin-left: auto;
+    text-align: right;
+}
+
+.message-received {
+    margin-right: auto;
+    text-align: left;
+}
+
+.message-info {
+    font-size: 11px;
+    color: #666;
+    margin-bottom: 2px;
+}
+
+.message-sent .message-info {
+    text-align: right;
+}
+
+.message-bubble {
+    display: inline-block;
+    padding: 8px 12px;
+    border-radius: 15px;
+    word-wrap: break-word;
+    line-height: 1.4;
+}
+
+.message-sent .message-bubble {
+    background: #007bff;
+    color: white;
+    border-bottom-right-radius: 5px;
+}
+
+.message-received .message-bubble {
+    background: white;
+    color: #333;
+    border: 1px solid #e9ecef;
+    border-bottom-left-radius: 5px;
+}
+
+.chat-form {
+    padding: 15px 20px;
+    background: white;
+    border-top: 1px solid #dee2e6;
+}
+
+.chat-input-container {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+}
+
+.chat-input {
+    flex: 1;
+    border: 1px solid #dee2e6;
+    border-radius: 20px;
+    padding: 8px 15px;
+    resize: none;
+    max-height: 100px;
+    min-height: 36px;
+}
+
+.chat-input:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+.send-btn {
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+}
+
+.send-btn:hover {
+    background: #0056b3;
+}
+
+.input-hint {
+    color: #6c757d;
+    font-size: 11px;
+    margin-top: 5px;
+    display: block;
+}
+
+/* 滚动条样式 */
+.chat-window::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-window::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.chat-window::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.chat-window::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+.load-more-container {
+    text-align: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #e9ecef;
+    margin-bottom: 10px;
+}
+
+.load-more-btn {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    color: #6c757d;
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.load-more-btn:hover {
+    background: #e9ecef;
+    color: #495057;
+}
+
+.load-more-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {    const chatWindow = document.getElementById('chatWindow');
+    const chatForm = document.getElementById('chatForm');
+    const chatInput = document.querySelector('.chat-input');
+    const messagesContainer = document.getElementById('messagesContainer');
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+    const conversationId = {{ conversation.id }};
+    
+    // 自动滚动到最新消息
+    function scrollToBottom() {
+        if (chatWindow) {
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+    }
+    
+    // 页面加载时滚动到底部（首次加载）
+    {% if current_page == 1 %}
+        scrollToBottom();
+    {% endif %}
+    
+    // 加载更多历史消息
+    if (loadMoreBtn) {
+        loadMoreBtn.addEventListener('click', function() {
+            const page = this.dataset.page;
+            this.disabled = true;
+            this.textContent = '加载中...';
+            
+            fetch(`/messages/conversation/${conversationId}?page=${page}`)
+                .then(response => response.text())
+                .then(html => {
+                    // 创建临时容器解析HTML
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = html;
+                    
+                    // 提取新的消息
+                    const newMessages = tempDiv.querySelector('#messagesContainer').innerHTML;
+                    const hasMoreBtn = tempDiv.querySelector('#loadMoreBtn');
+                    
+                    // 记录当前滚动位置
+                    const currentScrollHeight = chatWindow.scrollHeight;
+                    
+                    // 在现有消息前面插入新消息
+                    messagesContainer.innerHTML = newMessages + messagesContainer.innerHTML;
+                    
+                    // 保持滚动位置
+                    chatWindow.scrollTop = chatWindow.scrollHeight - currentScrollHeight;
+                    
+                    // 更新或移除"加载更多"按钮
+                    if (hasMoreBtn) {
+                        this.dataset.page = parseInt(page) + 1;
+                        this.disabled = false;
+                        this.textContent = '加载更多历史消息';
+                    } else {
+                        this.remove();
+                    }
+                })
+                .catch(error => {
+                    console.error('加载历史消息失败:', error);
+                    this.disabled = false;
+                    this.textContent = '加载失败，点击重试';
+                });
+        });
+    }
+    
+    // 创建消息HTML
+    function createMessageHTML(message) {
+        const messageClass = message.is_current_user ? 'message-sent' : 'message-received';
+        return `
+            <div class="message ${messageClass}">
+                <div class="message-info">
+                    <span class="sender">${message.sender_username}</span>
+                    <span class="timestamp">${message.timestamp}</span>
+                </div>
+                <div class="message-bubble">
+                    ${message.body}
+                </div>
+            </div>
+        `;
+    }
+    
+    // AJAX发送消息
+    function sendMessage(messageBody) {
+        const formData = new FormData();
+        formData.append('body', messageBody);
+        
+        fetch(`/messages/conversation/${conversationId}/send`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {            if (data.success) {
+                // 添加新消息到消息容器
+                const messageHTML = createMessageHTML(data.message);
+                messagesContainer.insertAdjacentHTML('beforeend', messageHTML);
+                
+                // 清空输入框
+                chatInput.value = '';
+                chatInput.style.height = 'auto';
+                
+                // 滚动到底部
+                scrollToBottom();
+            } else {
+                alert('发送失败: ' + (data.error || '未知错误'));
+            }
+        })
+        .catch(error => {
+            console.error('发送消息失败:', error);
+            alert('发送失败，请检查网络连接');
+        });
+    }
+    
+    // 表单提交处理
+    if (chatForm) {
+        chatForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const messageBody = chatInput.value.trim();
+            if (messageBody) {
+                sendMessage(messageBody);
+            }
+        });
+    }
+    
+    // 自动调整输入框高度
+    if (chatInput) {
+        chatInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+        });
+        
+        // 回车发送消息
+        chatInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                const messageBody = this.value.trim();
+                if (messageBody) {
+                    sendMessage(messageBody);
+                }
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

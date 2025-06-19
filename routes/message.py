@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, flash, redirect, url_for, request, abort
+from flask import Blueprint, render_template, flash, redirect, url_for, request, abort, jsonify
 from flask_login import current_user, login_required
 from datetime import datetime
 import pytz  # 引入 pytz 库
@@ -13,6 +13,21 @@ CHINA_TZ = pytz.timezone('Asia/Shanghai')
 
 # 定义一个名为 'message' 的蓝图
 message_bp = Blueprint('message', __name__)
+
+
+def find_conversation_between_users(user1, user2):
+    """
+    查找两个用户之间的现有对话
+    """
+    # 查找所有用户1参与的对话
+    user1_conversations = user1.conversations
+    
+    # 在这些对话中找到同时包含用户2的对话
+    for conversation in user1_conversations:
+        if user2 in conversation.participants and len(conversation.participants) == 2:
+            return conversation
+    
+    return None
 
 @message_bp.route('/', methods=['GET'])
 @login_required
@@ -46,44 +61,79 @@ def message_inbox():
         conversations_with_details=conversations_with_details
     )
 
-@message_bp.route('/conversation/<int:conversation_id>', methods=['GET', 'POST'])
+@message_bp.route('/conversation/<int:conversation_id>', methods=['GET'])
 @login_required
 def view_conversation(conversation_id):
     """
-    查看特定会话（聊天窗口）并处理回复。
+    查看特定会话（聊天窗口）。
     """
     conversation = db.session.get(Conversation, conversation_id)
     if not conversation or current_user not in conversation.participants:
         abort(403)
 
-    recipient = next((p for p in conversation.participants if p != current_user), None)
-
-    if request.method == 'POST':
-        # 处理回复消息的逻辑
-        body = request.form.get('body')
-        if body and recipient:
-            message = Message(
-                body=body,
-                sender_id=current_user.id,
-                conversation_id=conversation.id,
-                timestamp=datetime.now(CHINA_TZ)  # 使用中国时间
-            )
-            # 更新会话的最后消息时间
-            conversation.last_message_at = datetime.now(CHINA_TZ)  # 使用中国时间
-            db.session.add(message)
-            db.session.commit()
-            return redirect(url_for('message.view_conversation', conversation_id=conversation.id))
-
-    # 获取该会话的所有消息，按时间升序排列
-    messages = conversation.messages.order_by(Message.timestamp.asc()).all()
+    recipient = next((p for p in conversation.participants if p != current_user), None)    # 获取页码参数，默认为第1页
+    page = request.args.get('page', 1, type=int)
+    per_page = 50  # 每页显示50条消息
+    
+    # 分页查询消息，按时间降序
+    messages_pagination = conversation.messages.order_by(Message.timestamp.desc()).paginate(
+        page=page, per_page=per_page, error_out=False
+    )
+    
+    # 重新按时间升序排列以正确显示
+    messages = list(reversed(messages_pagination.items))
+      # 判断是否还有更多历史消息
+    has_more = messages_pagination.has_prev
 
     return render_template(
         'messages/conversation.html',
         title=f'与 {recipient.username} 的对话' if recipient else '对话',
         conversation=conversation,
         messages=messages,
-        recipient=recipient
+        recipient=recipient,
+        has_more=has_more,
+        current_page=page
     )
+
+
+@message_bp.route('/conversation/<int:conversation_id>/send', methods=['POST'])
+@login_required
+def send_message_ajax(conversation_id):
+    """
+    AJAX发送消息，不刷新页面。
+    """
+    conversation = db.session.get(Conversation, conversation_id)
+    if not conversation or current_user not in conversation.participants:
+        return jsonify({'error': '无权限访问此对话'}), 403
+
+    body = request.form.get('body', '').strip()
+    if not body:
+        return jsonify({'error': '消息内容不能为空'}), 400
+
+    # 创建新消息
+    message = Message(
+        body=body,
+        sender_id=current_user.id,
+        conversation_id=conversation.id,
+        timestamp=datetime.now(CHINA_TZ)
+    )
+    
+    # 更新会话的最后消息时间
+    conversation.last_message_at = datetime.now(CHINA_TZ)
+    db.session.add(message)
+    db.session.commit()
+
+    # 返回新消息的HTML
+    return jsonify({
+        'success': True,
+        'message': {
+            'id': message.id,
+            'body': message.body,
+            'sender_username': message.sender.username,
+            'timestamp': message.timestamp.strftime('%m-%d %H:%M'),
+            'is_current_user': message.sender_id == current_user.id
+        }
+    })
 
 @message_bp.route('/send/<string:recipient_username>', methods=['POST'])
 @login_required
@@ -98,18 +148,12 @@ def send_message(recipient_username):
 
     body = request.form.get('body', '').strip()
 
-    # 检查是否已存在当前用户和接收者之间的会话
-    conversation = db.session.query(Conversation).filter(
-        Conversation.participants.any(id=current_user.id)
-    ).filter(
-        Conversation.participants.any(id=recipient.id)
-    ).filter(
-        db.select(db.func.count(User.id)).where(User.conversations.any(id=Conversation.id)).scalar_subquery() == 2
-    ).first()
-
+    # 使用辅助函数查找现有对话
+    conversation = find_conversation_between_users(current_user, recipient)
+    
     if not conversation:
         # 如果没有会话，则创建一个新会话
-        conversation = Conversation(last_message_at=datetime.now(CHINA_TZ))  # 初始化时设置中国时间
+        conversation = Conversation(last_message_at=datetime.now(CHINA_TZ))
         conversation.participants.append(current_user)
         conversation.participants.append(recipient)
         db.session.add(conversation)

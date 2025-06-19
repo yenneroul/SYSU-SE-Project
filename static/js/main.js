@@ -218,10 +218,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         });
-    }
-
-    // 发送消息 - 回车发送
-    const messageTextarea = document.querySelector('textarea[name="body"]');
+    }    // 发送消息 - 回车发送 (仅用于非聊天页面的消息输入框)
+    const messageTextarea = document.querySelector('textarea[name="body"]:not(.chat-input)');
     if (messageTextarea) {
         messageTextarea.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
