@@ -45,3 +45,22 @@ def like_post(post_id):
 
     db.session.commit()
     return jsonify({'likes_count': post.likes_count})
+
+
+@post_bp.route('/delete/<int:post_id>', methods=['POST'])
+@login_required
+def delete_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    
+    # 检查是否为动态作者或管理员
+    if post.user_id != current_user.id and not current_user.is_admin():
+        return jsonify({'error': '无权删除此动态'}), 403
+    
+    # 删除相关的点赞记录
+    Like.query.filter_by(post_id=post_id).delete()
+    
+    # 删除动态
+    db.session.delete(post)
+    db.session.commit()
+    
+    return jsonify({'success': True, 'message': '动态已删除'})

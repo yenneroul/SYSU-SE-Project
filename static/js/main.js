@@ -51,9 +51,53 @@ document.addEventListener('DOMContentLoaded', function() {
                         this.textContent = '关注';
                         this.style.background = '#3498db';
                     }
+                }            } catch (error) {
+                console.error('关注操作失败:', error);
+            }
+        });
+    });
+
+    // 删除动态功能
+    const deleteButtons = document.querySelectorAll('.delete-btn');
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', async function() {
+            const postId = this.dataset.postId;
+            
+            // 确认删除
+            if (!confirm('确定要删除这条动态吗？删除后无法恢复。')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/post/delete/${postId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        // 找到并移除动态卡片
+                        const postCard = this.closest('.post-card');
+                        postCard.style.opacity = '0.5';
+                        postCard.style.transform = 'scale(0.95)';
+                        
+                        setTimeout(() => {
+                            postCard.remove();
+                            showMessage('动态已删除', 'success');
+                        }, 300);
+                    } else {
+                        showMessage(data.message || '删除失败', 'error');
+                    }
+                } else {
+                    const data = await response.json();
+                    showMessage(data.error || '删除失败', 'error');
                 }
             } catch (error) {
-                console.error('关注操作失败:', error);
+                console.error('删除动态失败:', error);
+                showMessage('删除失败，请重试', 'error');
             }
         });
     });
@@ -157,8 +201,36 @@ document.addEventListener('DOMContentLoaded', function() {
             // 切换密码输入框的类型
             const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
             passwordInput.setAttribute('type', type);
-            // 切换图标样式
-            this.classList.toggle('hidden');
+            // 切换图标样式            this.classList.toggle('hidden');
+        });
+    }
+
+    // 回车发送功能
+    // 发送动态 - 回车发送
+    const postTextarea = document.querySelector('.post-form textarea[name="content"]');
+    if (postTextarea) {
+        postTextarea.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                const form = this.closest('form');
+                if (this.value.trim()) {
+                    form.submit();
+                }
+            }
+        });
+    }
+
+    // 发送消息 - 回车发送
+    const messageTextarea = document.querySelector('textarea[name="body"]');
+    if (messageTextarea) {
+        messageTextarea.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                const form = this.closest('form');
+                if (this.value.trim()) {
+                    form.submit();
+                }
+            }
         });
     }
 });

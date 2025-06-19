@@ -94,13 +94,21 @@
     <div class="user-posts">
         <h3>{{ user.username }}的动态</h3>
         {% if posts %}
-            {% for post in posts %}
-            <div class="post-card">                <div class="post-header">                    <img src="{{ post.author.avatar_url or '/static/default-avatar.svg' }}"
+            {% for post in posts %}            <div class="post-card">
+                <div class="post-header">
+                    <img src="{{ post.author.avatar_url or '/static/default-avatar.svg' }}"
                          alt="头像" class="avatar-medium">
                     <div class="post-info">
                         <h4><a href="{{ url_for('user.profile', user_id=post.author.id) }}" class="username-link">{{ post.author.username }}</a></h4>
                         <p class="post-time">{{ post.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
                     </div>
+                    {% if post.author.id == current_user.id or current_user.is_admin() %}
+                    <div class="post-options">
+                        <button class="delete-btn" data-post-id="{{ post.id }}" title="删除动态">
+                            🗑️
+                        </button>
+                    </div>
+                    {% endif %}
                 </div>
 
                 <div class="post-content">

@@ -189,6 +189,18 @@ body {
     margin-bottom: 15px;
 }
 
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.text-muted {
+    color: #6c757d;
+    font-size: 12px;
+}
+
 /* 动态卡片 */
 .post-card {
     background: white;
@@ -201,7 +213,42 @@ body {
 .post-header {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     margin-bottom: 15px;
+}
+
+.post-info {
+    flex: 1;
+    margin-left: 15px;
+}
+
+.post-options {
+    display: flex;
+    align-items: center;
+}
+
+.delete-btn {
+    background: transparent;
+    border: none;
+    font-size: 16px;
+    color: #e74c3c;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.delete-btn:hover {
+    background: rgba(231, 76, 60, 0.1);
+    transform: scale(1.1);
+}
+
+.delete-btn:active {
+    transform: scale(0.95);
+}
+
+.post-header .avatar-medium {
+    margin-right: 0;
 }
 
 .avatar {
