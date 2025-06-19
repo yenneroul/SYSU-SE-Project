@@ -1,30 +1,75 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container">
-    <div class="posts-container">
-        {# 在导航栏区域添加 #}
-        <div class="navbar-search mb-4">
-            <form action="{{ url_for('post.search') }}" method="GET">
-                <div class="input-group">
-                    <input type="search" name="query" class="form-control" placeholder="搜索我的动态..."
-                           aria-label="Search">
-                    <button class="btn btn-outline-success" type="submit">
-                        <i class="bi bi-search"></i>
-                    </button>
-                </div>
-            </form>
+
+{# 导航栏区域 - 包含视频背景和搜索框 #}
+<!-- 导航栏搜索区域容器 -->
+<!-- 作用：包裹视频背景和搜索框，作为整体布局容器 -->
+<div class="navbar-search">
+    <!-- 视频背景容器：作为搜索框的背景层 -->
+    <!-- 特点：绝对定位，覆盖整个父容器，作为底层背景 -->
+    <div class="video-background">
+        <!-- 视频元素：自动播放、循环、静音 -->
+        <!-- autoplay：自动播放，loop：循环播放，muted：静音（现代浏览器自动播放要求） -->
+        <video id="bg-video" autoplay loop muted>
+            <!-- 视频源文件：使用Flask的url_for生成静态资源路径 -->
+            <!-- 建议将视频放在static/videos文件夹，此处示例为images目录（需根据实际调整） -->
+            <source src="{{ url_for('static', filename='images/_login.mp4') }}" type="video/mp4">
+            <!-- 浏览器不支持视频时的提示信息 -->
+            您的浏览器不支持视频播放
+        </video>
+    </div>
+
+    <!-- 搜索框表单：浮在视频背景上方的交互元素 -->
+    <!-- 作用：提供搜索功能，通过定位确保显示在视频上层 -->
+    <!-- 搜索框表单 -->
+    <form action="{{ url_for('post.search') }}" method="GET" class="search-form">
+        <div class="input-group">
+            <input type="search" name="query" class="form-control" 
+                placeholder="搜索我的动态..." aria-label="Search">
+            <!-- 搜索按钮：添加自定义类名并设置文字 -->
+            <button class="btn city-search-btn" type="submit">
+                <i class="bi bi-search me-1"></i> 搜索
+            </button>
         </div>
-        
-        {# 在已有内容前添加搜索框 #}
+
+    </form>
+</div>
+
+{# 在已有内容前添加搜索框 #}
+<div class="container">
+
+    <div class="posts-container">
+       
         
     <!-- 发布动态 -->    <div class="post-form mb-4">
+
         <h3>发布动态</h3>
         <form method="POST" action="{{ url_for('post.create_post') }}">
-            <textarea name="content" placeholder="分享你的想法..." required></textarea>
+            <div class="post-input-container">
+                <textarea name="content" id="postContent" placeholder="分享你的想法..." required></textarea>
+                <button type="button" class="emoji-btn-post" id="emojiBtnPost" title="选择表情">😊</button>
+            </div>
             <div class="form-actions">
                 <small class="text-muted">按 Enter 发送，Shift+Enter 换行</small>
                 <button type="submit" class="btn-primary">发布</button>
+            </div>
+            
+            <!-- 表情选择器 -->
+            <div class="emoji-picker-post" id="emojiPickerPost" style="display: none;">
+                <div class="emoji-categories">
+                    <button type="button" class="emoji-category-btn active" data-category="smileys">😊</button>
+                    <button type="button" class="emoji-category-btn" data-category="people">👤</button>
+                    <button type="button" class="emoji-category-btn" data-category="animals">🐶</button>
+                    <button type="button" class="emoji-category-btn" data-category="food">🍎</button>
+                    <button type="button" class="emoji-category-btn" data-category="activities">⚽</button>
+                    <button type="button" class="emoji-category-btn" data-category="travel">✈️</button>
+                    <button type="button" class="emoji-category-btn" data-category="objects">📱</button>
+                    <button type="button" class="emoji-category-btn" data-category="symbols">❤️</button>
+                </div>
+                <div class="emoji-grid-post" id="emojiGridPost">
+                    <!-- 表情将通过 JavaScript 动态加载 -->
+                </div>
             </div>
         </form>
     </div>
