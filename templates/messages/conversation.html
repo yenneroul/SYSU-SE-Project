@@ -11,11 +11,10 @@
                 </p>
             </div>
         {% endfor %}
-    </div>
-
-    <form action="{{ url_for('message.view_conversation', conversation_id=conversation.id) }}" method="post">
+    </div>    <form action="{{ url_for('message.view_conversation', conversation_id=conversation.id) }}" method="post">
         <div class="mb-3">
             <textarea name="body" class="form-control" rows="3" placeholder="输入回复..."></textarea>
+            <small class="text-muted">按 Enter 发送，Shift+Enter 换行</small>
         </div>
         <button type="submit" class="btn btn-primary">发送</button>
     </form>

@@ -189,6 +189,18 @@ body {
     margin-bottom: 15px;
 }
 
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.text-muted {
+    color: #6c757d;
+    font-size: 12px;
+}
+
 /* 动态卡片 */
 .post-card {
     background: white;

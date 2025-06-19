@@ -201,8 +201,36 @@ document.addEventListener('DOMContentLoaded', function() {
             // 切换密码输入框的类型
             const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
             passwordInput.setAttribute('type', type);
-            // 切换图标样式
-            this.classList.toggle('hidden');
+            // 切换图标样式            this.classList.toggle('hidden');
+        });
+    }
+
+    // 回车发送功能
+    // 发送动态 - 回车发送
+    const postTextarea = document.querySelector('.post-form textarea[name="content"]');
+    if (postTextarea) {
+        postTextarea.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                const form = this.closest('form');
+                if (this.value.trim()) {
+                    form.submit();
+                }
+            }
+        });
+    }
+
+    // 发送消息 - 回车发送
+    const messageTextarea = document.querySelector('textarea[name="body"]');
+    if (messageTextarea) {
+        messageTextarea.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                const form = this.closest('form');
+                if (this.value.trim()) {
+                    form.submit();
+                }
+            }
         });
     }
 });

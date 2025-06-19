@@ -2,12 +2,14 @@
 
 {% block content %}
 <div class="container">
-    <!-- 发布动态 -->
-    <div class="post-form">
+    <!-- 发布动态 -->    <div class="post-form">
         <h3>发布动态</h3>
         <form method="POST" action="{{ url_for('post.create_post') }}">
             <textarea name="content" placeholder="分享你的想法..." required></textarea>
-            <button type="submit" class="btn-primary">发布</button>
+            <div class="form-actions">
+                <small class="text-muted">按 Enter 发送，Shift+Enter 换行</small>
+                <button type="submit" class="btn-primary">发布</button>
+            </div>
         </form>
     </div>
     
