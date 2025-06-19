@@ -104,14 +104,28 @@ class User(UserMixin, db.Model):
     # 管理员相关字段
     role = db.Column(db.String(20), default='user')  # user, moderator, super_admin
     is_active = db.Column(db.Boolean, default=True)  # 账户是否激活
-    banned_until = db.Column(db.DateTime, nullable=True)  # 封禁到期时间
-    created_by_admin = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)  # 由哪个管理员创建
+    banned_until = db.Column(db.DateTime, nullable=True)  # 封禁到期时间    created_by_admin = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)  # 由哪个管理员创建
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+    @property
+    def posts_count(self):
+        """获取用户发布的动态数量"""
+        return len(self.posts)
+    
+    @property
+    def followers_count(self):
+        """获取粉丝数量"""
+        return self.followers.count()
+    
+    @property
+    def followed_count(self):
+        """获取关注数量"""
+        return self.followed.count()
 
     def follow(self, user):
         if not self.is_following(user):
@@ -127,19 +141,44 @@ class User(UserMixin, db.Model):
     def is_mutual_following(self, user):
         """检查是否互相关注"""
         return self.is_following(user) and user.is_following(self)
-
+    
     def get_matching_users(self, limit=10):
-        """基于标签匹配推荐用户"""
+        """基于标签匹配推荐用户，排除已关注的用户，按匹配度排序"""
         if not self.tags:
             return []
 
         user_tag_ids = [tag.id for tag in self.tags]
-        matching_users = User.query.join(user_tags).filter(
+        
+        # 获取已关注用户的ID列表
+        followed_user_ids = [user.id for user in self.followed.all()]
+        followed_user_ids.append(self.id)  # 也排除自己
+        
+        # 查询有共同标签的用户
+        potential_users = User.query.join(user_tags).filter(
             user_tags.c.tag_id.in_(user_tag_ids),
-            User.id != self.id
-        ).distinct().limit(limit).all()
-
-        return matching_users
+            ~User.id.in_(followed_user_ids)  # 排除已关注的用户和自己
+        ).distinct().all()
+        
+        # 计算每个用户的匹配分数
+        user_scores = []
+        for user in potential_users:
+            user_tag_ids_set = {tag.id for tag in user.tags}
+            current_user_tag_ids_set = set(user_tag_ids)
+            
+            # 计算共同标签数量
+            common_tags = len(user_tag_ids_set.intersection(current_user_tag_ids_set))
+            
+            # 计算匹配分数（共同标签数 / 总标签数的平均值）
+            total_tags = len(user_tag_ids_set.union(current_user_tag_ids_set))
+            match_score = common_tags / total_tags if total_tags > 0 else 0
+            
+            user_scores.append((user, match_score, common_tags))
+        
+        # 按匹配分数降序排序，然后按共同标签数降序排序
+        user_scores.sort(key=lambda x: (x[1], x[2]), reverse=True)
+        
+        # 返回前limit个用户
+        return [user for user, score, common_tags in user_scores[:limit]]
 
     # 管理员权限检查方法
     def is_admin(self):

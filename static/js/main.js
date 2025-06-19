@@ -27,13 +27,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('点赞失败:', error);
             }
         });
-    });
-
-    // 关注功能
+    });    // 关注功能
     const followButtons = document.querySelectorAll('.follow-btn');
     followButtons.forEach(button => {
         button.addEventListener('click', async function() {
             const userId = this.dataset.userId;
+            const isDiscoverPage = window.location.pathname.includes('/discover');
+            
             try {
                 const response = await fetch(`/follow/follow/${userId}`, {
                     method: 'POST',
@@ -44,15 +44,55 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 if (response.ok) {
                     const data = await response.json();
-                    if (data.action === 'followed') {
-                        this.textContent = '取消关注';
-                        this.style.background = '#e74c3c';
+                    
+                    if (isDiscoverPage && data.action === 'followed') {
+                        // 发现页面：关注后移除用户卡片
+                        const userCard = this.closest('.user-card');
+                        userCard.style.opacity = '0.5';
+                        userCard.style.transform = 'scale(0.95)';
+                        
+                        setTimeout(() => {
+                            userCard.remove();
+                            showMessage('已关注，用户已从推荐列表中移除', 'success');
+                            
+                            // 检查是否还有推荐用户
+                            const remainingCards = document.querySelectorAll('.user-card');
+                            if (remainingCards.length === 0) {
+                                // 显示空推荐状态
+                                const userCardsContainer = document.querySelector('.user-cards');
+                                if (userCardsContainer) {
+                                    userCardsContainer.parentNode.innerHTML = `
+                                        <div class="empty-discover">
+                                            <div class="empty-icon">🤝</div>
+                                            <h3>暂无推荐用户</h3>
+                                            <p>看起来没有和你有共同兴趣的用户，或者他们都已经被你关注了！</p>
+                                            <div class="empty-actions">
+                                                <a href="/user/edit_profile" class="btn btn-primary">添加更多标签</a>
+                                                <a href="/" class="btn btn-secondary">返回首页</a>
+                                            </div>
+                                        </div>
+                                    `;
+                                }
+                            }
+                        }, 300);
                     } else {
-                        this.textContent = '关注';
-                        this.style.background = '#3498db';
+                        // 其他页面：更新按钮状态
+                        if (data.action === 'followed') {
+                            this.textContent = '取消关注';
+                            this.style.background = '#e74c3c';
+                            if (!isDiscoverPage) {
+                                showMessage('关注成功', 'success');
+                            }
+                        } else {
+                            this.textContent = '关注';
+                            this.style.background = '#3498db';
+                            showMessage('已取消关注', 'info');
+                        }
                     }
-                }            } catch (error) {
+                }
+            } catch (error) {
                 console.error('关注操作失败:', error);
+                showMessage('操作失败，请重试', 'error');
             }
         });
     });

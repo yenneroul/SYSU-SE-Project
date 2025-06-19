@@ -17,6 +17,35 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+@user_bp.route('/api/refresh_recommendations')
+@login_required
+def refresh_recommendations():
+    """刷新推荐用户 - 返回JSON数据"""
+    matching_users = current_user.get_matching_users()
+    
+    users_data = []
+    for user in matching_users:        # 计算共同标签
+        common_tags = []
+        for tag in user.tags:
+            if tag in current_user.tags:
+                common_tags.append({'name': tag.name, 'matched': True})
+            else:
+                common_tags.append({'name': tag.name, 'matched': False})
+        
+        users_data.append({
+            'id': user.id,
+            'username': user.username,
+            'bio': user.bio,
+            'avatar_url': user.avatar_url or '/static/default-avatar.svg',
+            'posts_count': user.posts_count,
+            'followed_count': user.followed_count,
+            'followers_count': user.followers_count,
+            'tags': common_tags,
+            'is_following': current_user.is_following(user)
+        })
+    
+    return jsonify({'users': users_data})
+
 @user_bp.route('/profile/<int:user_id>')
 @login_required
 def profile(user_id):
