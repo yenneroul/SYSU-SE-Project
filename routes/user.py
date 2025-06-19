@@ -132,28 +132,46 @@ def edit_profile():
 
     return render_template('edit_profile.html', preset_avatars=PRESET_AVATARS, all_tags=all_tags)
 
+
 @user_bp.route('/recommendations')
 @login_required
 def recommend_users():
     from utils.user_vector import build_vocab, profile_to_vector, cosine_similarity
+
+    # 获取当前用户已关注的用户ID列表
+    # 假设你有一个Follow模型来处理关注关系
+    followed_user_ids = set()
+    if hasattr(current_user, 'following'):
+        followed_user_ids = {user.id for user in current_user.following}
+    # 或者如果你有其他的关注关系表，比如：
+    # followed_user_ids = {f.followed_id for f in Follow.query.filter_by(follower_id=current_user.id).all()}
+
     users = User.query.all()
-    vocab = build_vocab(users)
-    target_vector = profile_to_vector(current_user, vocab)
 
     # 缓存词汇表以提高性能
     if not hasattr(current_app, 'user_vocab'):
         current_app.user_vocab = build_vocab(users)
     vocab = current_app.user_vocab
 
+    # 生成当前用户的向量
+    target_vector = profile_to_vector(current_user, vocab)
+
     scored_users = []
     for user in users:
-        if user.id == current_user.id or not user.vector:
+        # 排除当前用户自己和已经关注的用户
+        if (user.id == current_user.id or
+                user.id in followed_user_ids or
+                not user.vector):
             continue
+
         try:
             user_vec = list(map(int, user.vector.split(',')))
+            # 确保向量长度匹配
+            if len(user_vec) != len(target_vector):
+                continue
             sim = cosine_similarity(target_vector, user_vec)
             scored_users.append((user, sim))
-        except (ValueError, IndexError):
+        except (ValueError, IndexError, AttributeError):
             # 处理向量格式错误或长度不匹配的情况
             continue
 
@@ -162,7 +180,6 @@ def recommend_users():
     users_with_similarity = scored_users[:10]
 
     return render_template('recommendations.html', users_with_similarity=users_with_similarity)
-
 @user_bp.route('/change-password', methods=['GET', 'POST'])
 @login_required
 def change_password():

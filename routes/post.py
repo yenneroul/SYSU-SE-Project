@@ -1,21 +1,29 @@
 from flask import Blueprint, request, redirect, url_for, jsonify
 from flask_login import login_required, current_user
 from models import db, Post, Like
+from datetime import datetime
+import pytz  # 引入 pytz 库
+
+# 定义中国时区
+CHINA_TZ = pytz.timezone('Asia/Shanghai')
 
 post_bp = Blueprint('post', __name__)
-
 
 @post_bp.route('/create', methods=['POST'])
 @login_required
 def create_post():
     content = request.form['content']
 
-    post = Post(content=content, user_id=current_user.id)
+    # 创建帖子时设置中国时间
+    post = Post(
+        content=content,
+        user_id=current_user.id,
+        created_at=datetime.now(CHINA_TZ)  # 使用中国时间
+    )
     db.session.add(post)
     db.session.commit()
 
     return redirect(url_for('index'))
-
 
 @post_bp.route('/like/<int:post_id>', methods=['POST'])
 @login_required
