@@ -156,11 +156,46 @@
 <style>
 .edit-profile-container {
     max-width: 600px;
-    margin: 20px auto;
+    margin: 30px auto;
     background: white;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+    border: none;
+    animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.edit-profile-container h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 32px;
+    font-weight: 700;
+    color: #2c3e50;
+    position: relative;
+    padding-bottom: 15px;
+}
+
+.edit-profile-container h2::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #3498db, #2980b9);
+    border-radius: 3px;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .flash-messages {
@@ -177,23 +212,36 @@
 }
 
 .edit-form .form-group {
-    margin-bottom: 25px;
+    margin-bottom: 28px;
+    position: relative;
 }
 
 .edit-form label {
     display: block;
-    margin-bottom: 8px;
-    font-weight: bold;
+    margin-bottom: 10px;
+    font-weight: 600;
     color: #2c3e50;
+    letter-spacing: 0.3px;
 }
 
-.edit-form textarea, .edit-form input[type="text"], .edit-form input[type="url"] {
+.edit-form textarea, .edit-form input[type="text"], .edit-form input[type="url"], .edit-form input[type="email"] {
     width: 100%;
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+    padding: 14px 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
     box-sizing: border-box;
     font-family: inherit;
+    font-size: 16px;
+    transition: all 0.25s ease;
+    background-color: #f8f9fa;
+    color: #495057;
+}
+
+.edit-form textarea:focus, .edit-form input[type="text"]:focus, .edit-form input[type="url"]:focus, .edit-form input[type="email"]:focus {
+    border-color: #3498db;
+    outline: 0;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    background-color: #fff;
 }
 
 .edit-form textarea {
@@ -202,23 +250,36 @@
 }
 
 .avatar-options {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 20px;
-    background: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 25px;
+    background: #f8f9fa;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    margin-bottom: 25px;
 }
 
 .current-avatar {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
+    padding: 15px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
 }
 
 .avatar-preview {
-    width: 80px;
-    height: 80px;
+    width: 100px;
+    height: 100px;
     border-radius: 50%;
-    border: 3px solid #3498db;
+    border: 4px solid #3498db;
     object-fit: cover;
+    box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+    transition: all 0.3s ease;
+}
+
+.avatar-preview:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(52, 152, 219, 0.4);
 }
 
 .avatar-choice {
@@ -236,13 +297,14 @@
 
 .preset-avatars {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
-    gap: 10px;
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    gap: 15px;
     margin: 15px 0;
-    padding: 15px;
+    padding: 20px;
     background: white;
-    border-radius: 5px;
-    min-height: 80px;
+    border-radius: 10px;
+    min-height: 100px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
 }
 
 .preset-avatar-option {
@@ -255,29 +317,37 @@
 }
 
 .preset-avatar {
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     border: 2px solid transparent;
     transition: all 0.3s;
     object-fit: cover;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .preset-avatar-option input[type="radio"]:checked + .preset-avatar {
     border-color: #3498db;
-    transform: scale(1.1);
-    box-shadow: 0 0 10px rgba(52, 152, 219, 0.5);
+    transform: scale(1.15);
+    box-shadow: 0 0 15px rgba(52, 152, 219, 0.6);
 }
 
 .preset-avatar:hover {
-    transform: scale(1.05);
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .upload-section, .url-section {
     margin: 15px 0;
-    padding: 15px;
+    padding: 20px;
     background: white;
-    border-radius: 5px;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.upload-section:hover, .url-section:hover {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .contact-input-container {
@@ -288,14 +358,25 @@
 .show-option {
     display: flex;
     align-items: center;
-    margin-top: 8px;
+    margin-top: 12px;
     font-weight: normal;
     color: #555;
     font-size: 14px;
+    padding: 8px 12px;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.show-option:hover {
+    background-color: #edf2f7;
 }
 
 .show-option input[type="checkbox"] {
-    margin-right: 8px;
+    margin-right: 10px;
+    width: 18px;
+    height: 18px;
+    accent-color: #3498db;
 }
 
 .upload-hint {
@@ -313,38 +394,57 @@
 
 .form-actions {
     display: flex;
-    gap: 15px;
+    gap: 20px;
     justify-content: center;
-    margin-top: 30px;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #eaeaea;
 }
 
 .btn-primary, .btn-secondary {
-    padding: 12px 24px;
+    padding: 14px 28px;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     text-decoration: none;
     display: inline-block;
-    transition: background 0.3s;
+    transition: all 0.3s ease;
     cursor: pointer;
     font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .btn-primary {
-    background: #3498db;
+    background: linear-gradient(135deg, #3498db, #2980b9);
     color: white;
 }
 
 .btn-primary:hover {
-    background: #2980b9;
+    background: linear-gradient(135deg, #2980b9, #3498db);
+    box-shadow: 0 7px 20px rgba(52, 152, 219, 0.5);
+    transform: translateY(-3px);
+}
+
+.btn-primary:active {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(52, 152, 219, 0.4);
 }
 
 .btn-secondary {
-    background: #95a5a6;
+    background: linear-gradient(135deg, #95a5a6, #7f8c8d);
     color: white;
 }
 
 .btn-secondary:hover {
-    background: #7f8c8d;
+    background: linear-gradient(135deg, #7f8c8d, #95a5a6);
+    box-shadow: 0 7px 20px rgba(127, 140, 141, 0.5);
+    transform: translateY(-3px);
+}
+
+.btn-secondary:active {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(127, 140, 141, 0.4);
 }
 
 @media (max-width: 768px) {
@@ -353,8 +453,43 @@
     }
 
     .edit-profile-container {
+        margin: 15px;
+        padding: 30px;
+    }
+    
+    .edit-profile-container h2 {
+        font-size: 28px;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .btn-primary, .btn-secondary {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .edit-profile-container {
         margin: 10px;
         padding: 20px;
+    }
+    
+    .edit-form textarea, .edit-form input[type="text"], .edit-form input[type="url"], .edit-form input[type="email"] {
+        padding: 12px 14px;
+    }
+    
+    .preset-avatars {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        padding: 15px;
+    }
+    
+    .preset-avatar {
+        width: 50px;
+        height: 50px;
     }
 }
 </style>
