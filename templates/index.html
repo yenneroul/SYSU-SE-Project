@@ -14,8 +14,8 @@
     <!-- 动态列表 -->
     <div class="posts-container">
         {% if posts %}
-            {% for post in posts %}
-            <div class="post-card">                <div class="post-header">
+            {% for post in posts %}            <div class="post-card">
+                <div class="post-header">
                     <img src="{{ post.author.avatar_url or '/static/default-avatar.svg' }}" 
                          alt="头像" class="avatar-medium">
                     <div class="post-info">
@@ -29,6 +29,13 @@
                         </span>
                         <p class="post-time">{{ post.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
                     </div>
+                    {% if post.author.id == current_user.id or current_user.is_admin() %}
+                    <div class="post-options">
+                        <button class="delete-btn" data-post-id="{{ post.id }}" title="删除动态">
+                            🗑️
+                        </button>
+                    </div>
+                    {% endif %}
                 </div>
                 
                 <div class="post-content">
