@@ -1,46 +1,401 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container">
-    <h1 class="my-4">收件箱</h1>
+<div class="inbox-container">
+    <div class="inbox-header">
+        <h1 class="inbox-title">
+            <svg class="inbox-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22,6 12,13 2,6"></polyline>
+            </svg>
+            收件箱
+        </h1>
+        <p class="inbox-subtitle">与朋友们的精彩对话</p>
+    </div>
 
     {% if conversations_with_details %}
-        <div class="list-group">
-            <!-- 遍历后端处理好的 conversations_with_details 列表 -->
+        <div class="conversations-list">
             {% for item in conversations_with_details %}
-                <a href="{{ url_for('message.view_conversation', conversation_id=item.conversation.id) }}" class="list-group-item list-group-item-action flex-column align-items-start">
-                    <div class="d-flex w-100 justify-content-between">
-                        <!-- 直接使用后端准备好的 other_user 变量 -->
-                        <h5 class="mb-1">
-                            与
-                            {% if item.other_user %}
-                                {{ item.other_user.username }}
-                            {% else %}
-                                [已注销用户]
-                            {% endif %}
-                            的对话
-                        </h5>
-                        <!-- 显示最后消息的时间 -->
-                        <small class="text-muted">{{ item.conversation.last_message_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                <a href="{{ url_for('message.view_conversation', conversation_id=item.conversation.id) }}" class="conversation-item">
+                    <div class="conversation-avatar">
+                        {% if item.other_user %}
+                            <img src="{{ item.other_user.avatar_url or '/static/default-avatar.svg' }}"
+                                 alt="{{ item.other_user.username }}"
+                                 class="avatar">
+                        {% else %}
+                            <div class="avatar-placeholder">
+                                <svg viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.89 1 3 1.89 3 3V21C3 22.1 3.89 23 5 23H19C20.1 23 21 22.1 21 21V9M12 13C8.69 13 6 15.69 6 19V21H18V19C18 15.69 15.31 13 12 13Z"/>
+                                </svg>
+                            </div>
+                        {% endif %}
+                        {% if item.unread_count and item.unread_count > 0 %}
+                            <span class="unread-badge">{{ item.unread_count }}</span>
+                        {% endif %}
                     </div>
 
-                    <!-- 直接显示后端准备好的 last_message 内容 -->
-                    {% if item.last_message %}
-                        <p class="mb-1">
-                            <strong>{{ item.last_message.sender.username }}:</strong>
-                            {{ item.last_message.body[:80] }}{% if item.last_message.body|length > 80 %}...{% endif %}
-                        </p>
-                    {% else %}
-                         <p class="mb-1 fst-italic">还没有消息，快开始对话吧！</p>
-                    {% endif %}
+                    <div class="conversation-content">
+                        <div class="conversation-header">
+                            <h3 class="conversation-title">
+                                {% if item.other_user %}
+                                    {{ item.other_user.username }}
+                                {% else %}
+                                    已注销用户
+                                {% endif %}
+                            </h3>
+                            <span class="conversation-time">
+                                {{ item.conversation.last_message_at.strftime('%m-%d %H:%M') }}
+                            </span>
+                        </div>
+
+                        <div class="conversation-preview">
+                            {% if item.last_message %}
+                                <span class="message-sender">
+                                    {% if item.last_message.sender.id == current_user.id %}
+                                        你:
+                                    {% else %}
+                                        {{ item.last_message.sender.username }}:
+                                    {% endif %}
+                                </span>
+                                <span class="message-text">
+                                    {{ item.last_message.body[:60] }}{% if item.last_message.body|length > 60 %}...{% endif %}
+                                </span>
+                            {% else %}
+                                <span class="no-message">还没有消息，快开始对话吧！</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="conversation-arrow">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9,18 15,12 9,6"></polyline>
+                        </svg>
+                    </div>
                 </a>
             {% endfor %}
         </div>
     {% else %}
-        <div class="text-center mt-5">
-            <p class="lead text-muted">你的收件箱是空的。</p>
-            <p>去 <a href="{{ url_for('discover') }}">发现页</a> 看看，找人聊聊天吧！</p>
+        <div class="empty-inbox">
+            <div class="empty-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                    <line x1="8" y1="21" x2="16" y2="21"></line>
+                    <line x1="12" y1="17" x2="12" y2="21"></line>
+                </svg>
+            </div>
+            <h3 class="empty-title">收件箱空空如也</h3>
+            <p class="empty-subtitle">还没有开始任何对话呢</p>
+            <a href="{{ url_for('discover') }}" class="discover-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polygon points="10,8 16,12 10,16 10,8"></polygon>
+                </svg>
+                去发现新朋友
+            </a>
         </div>
     {% endif %}
 </div>
+
+<style>
+.inbox-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    min-height: 80vh;
+}
+
+.inbox-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.inbox-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1a202c;
+    margin: 0 0 0.5rem 0;
+}
+
+.inbox-icon {
+    width: 2rem;
+    height: 2rem;
+    color: #667eea;
+}
+
+.inbox-subtitle {
+    color: #718096;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.conversations-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.conversation-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.conversation-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border-color: #667eea;
+    text-decoration: none;
+    color: inherit;
+}
+
+.conversation-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    transform: scaleY(0);
+    transition: transform 0.2s ease;
+}
+
+.conversation-item:hover::before {
+    transform: scaleY(1);
+}
+
+.conversation-avatar {
+    position: relative;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+.avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e2e8f0;
+}
+
+.avatar-placeholder {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #f7fafc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #a0aec0;
+    border: 2px solid #e2e8f0;
+}
+
+.avatar-placeholder svg {
+    width: 24px;
+    height: 24px;
+}
+
+.unread-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #e53e3e;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+}
+
+.conversation-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.conversation-header {
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    margin-bottom: 0.25rem;
+}
+
+.conversation-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0;
+    flex: 1;
+}
+
+.conversation-time {
+    font-size: 0.875rem;
+    color: #a0aec0;
+    flex-shrink: 0;
+}
+
+.conversation-preview {
+    font-size: 0.875rem;
+    color: #718096;
+    display: flex;
+    gap: 0.25rem;
+}
+
+.message-sender {
+    font-weight: 500;
+    color: #4a5568;
+}
+
+.message-text {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.no-message {
+    font-style: italic;
+    color: #a0aec0;
+}
+
+.conversation-arrow {
+    margin-left: 1rem;
+    color: #cbd5e0;
+    flex-shrink: 0;
+}
+
+.conversation-arrow svg {
+    width: 20px;
+    height: 20px;
+    transition: all 0.2s ease;
+}
+
+.conversation-item:hover .conversation-arrow {
+    color: #667eea;
+}
+
+.conversation-item:hover .conversation-arrow svg {
+    transform: translateX(4px);
+}
+
+.empty-inbox {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #718096;
+}
+
+.empty-icon {
+    margin-bottom: 1.5rem;
+}
+
+.empty-icon svg {
+    width: 4rem;
+    height: 4rem;
+    color: #cbd5e0;
+}
+
+.empty-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 0.5rem;
+}
+
+.empty-subtitle {
+    font-size: 1rem;
+    margin-bottom: 2rem;
+}
+
+.discover-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.discover-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    color: white;
+    text-decoration: none;
+}
+
+.discover-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .inbox-container {
+        padding: 1rem 0.5rem;
+    }
+
+    .conversation-item {
+        padding: 0.75rem;
+    }
+
+    .conversation-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+
+    .conversation-time {
+        font-size: 0.75rem;
+    }
+
+    .conversation-preview {
+        font-size: 0.8rem;
+    }
+
+    .inbox-title {
+        font-size: 1.5rem;
+    }
+}
+
+/* 暗色模式适配 */
+@media (prefers-color-scheme: dark) {
+    .conversation-item {
+        background: #2d3748;
+        border-color: #4a5568;
+    }
+
+    .conversation-item:hover {
+        background: #374151;
+    }
+
+    .conversation-title {
+        color: #f7fafc;
+    }
+
+    .empty-title {
+        color: #e2e8f0;
+    }
+}
+</style>
 {% endblock %}
