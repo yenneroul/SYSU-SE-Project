@@ -1,10 +1,24 @@
 {% extends "base.html" %}
 
-{% block title %}注册 - 标签社交{% endblock %}
+{% block body_class %}auth-page{% endblock %}
+
+{% block title %}注册 - LinkTag{% endblock %}
 
 {% block content %}
 <div class="auth-container">
     <h2>注册账号</h2>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
     <form method="POST" class="auth-form" enctype="multipart/form-data">
         <div class="form-group">
             <label for="username">用户名:</label>
@@ -26,7 +40,7 @@
                 </div>
                 <div class="password-strength-text"></div>
                 <div class="password-suggestions"></div>
-            </div>
+        </div>
         </div>        <div class="form-group">
             <label>性别:</label>
             <div class="gender-options">
@@ -41,11 +55,13 @@
 
         <div class="form-group">
             <label for="contact_type">联系方式:</label>
+            <div class="contact-group">
             <select id="contact_type" name="contact_type" required onchange="toggleContactInput()">
                 <option value="qq">QQ</option>
                 <option value="wechat">微信</option>
             </select>
-            <input type="text" id="contact_account" name="contact_account" placeholder="请输入QQ号或微信号" required>
+                <input type="text" id="contact_account" name="contact_account" placeholder="请输入QQ号或微信号" required>
+            </div>
         </div>        <div class="form-group">
             <label>选择头像 (可选，不选则使用默认头像):</label>
             <div class="avatar-options">
@@ -70,7 +86,7 @@
                         <input type="radio" name="preset_avatar" value="/static/avatars/presets/avatar{{ i }}.svg">
                         <img src="/static/avatars/presets/avatar{{ i }}.svg" alt="预设头像{{ i }}" class="preset-avatar"
                              onerror="this.style.display='none'">
-                    </label>
+                        </label>
                     {% endfor %}
                 </div>
 

@@ -2,7 +2,7 @@
 function toggleContactInput() {
     var contactType = document.getElementById("contact_type").value;
     var contactAccountInput = document.getElementById("contact_account");
-    
+
     // 更新输入框的占位符
     if (contactType === "qq") {
         contactAccountInput.placeholder = "请输入QQ号";
@@ -11,8 +11,8 @@ function toggleContactInput() {
     }
     
     // 确保输入框始终显示
-    contactAccountInput.style.display = "block";
-    contactAccountInput.setAttribute("required", "required");
+        contactAccountInput.style.display = "block";
+        contactAccountInput.setAttribute("required", "required");
 }
 
 // 头像选择功能
