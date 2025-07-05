@@ -166,7 +166,7 @@ body.auth-page .navbar {
         padding: 40px 30px;
         margin: 0 15px;
     }
-    
+
     .auth-container h2 {
         font-size: 28px;
     }
@@ -176,14 +176,14 @@ body.auth-page .navbar {
     .auth-container {
         padding: 30px 20px;
     }
-    
+
     .auth-form input[type="text"],
     .auth-form input[type="email"],
     .auth-form input[type="password"],
     .auth-form input[type="url"] {
         padding: 12px 14px;
     }
-    
+
     .btn-primary {
         padding: 12px 16px;
     }
@@ -289,7 +289,7 @@ body.auth-page .navbar {
     height: 20px;
     opacity: 0.5;
     transition: opacity 0.2s;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23888'%3E%3Cpath d='M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23888'%3E%3Cpath d='M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-size: contain;
     background-position: center;
@@ -965,4 +965,122 @@ body.auth-page .navbar {
 
 }
 
+/* 导航栏搜索区域的父容器，设置为相对定位，用于承载视频和搜索框 */
+.navbar-search {
+    position: relative;
+    width: 100vw; /* 宽度占满整个视口宽度 */
+    left: 50%;
+    transform: translateX(-50%); /* 配合 left:50% 实现水平居中（可选，根据需求调整） */
+    height:300px;
+    overflow: hidden;
+}
 
+/* 视频背景容器：绝对定位，铺满整个屏幕 */
+.video-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw; /* 宽度占满视口 */
+    height: 100%; /* 高度根据需求调整，这里填充满父容器 */
+    z-index: 1; /* 视频层级低于搜索框 */
+}
+
+/* 视频元素：宽度铺满容器，高度自适应并保持比例 */
+#bg-video {
+    width: 100%;
+    height: auto;
+    min-height: 100%; /* 保证视频至少铺满容器高度 */
+    object-fit: cover; /* 保持比例并覆盖容器，裁剪多余部分 */
+}
+
+/* 搜索框表单（绝对定位+transform居中） */
+.search-form {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* 核心：50%偏移+反向平移 */
+    z-index: 2;
+    max-width: 600px;
+    width: 100%;
+    padding: 10px 20px;
+}
+
+/* 城市风格搜索按钮样式（蓝色系，类似城市天空色调） */
+.city-search-btn {
+    /* 主色调：蓝色（#1E88E5 是类似城市天空的蓝色，可调整） */
+    background-color: #1E88E5; /* 城市蓝 */
+    border-color: #1E88E5;     /* 边框颜色与背景一致 */
+
+    /* 文字颜色：白色 */
+    color: white;
+
+    /* 鼠标悬停效果 */
+    &:hover {
+        background-color: #1976D2; /* 深一度蓝色 */
+        border-color: #1976D2;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 轻微阴影增强立体感 */
+    }
+
+    /* 点击激活效果 */
+    &:active {
+        background-color: #1565C0; /* 更深蓝色 */
+        transform: translateY(1px); /* 轻微上移模拟按下效果 */
+    }
+}
+
+/* 新增字体设置 */
+body {
+    font-family: 'Helvetica Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* 标题美化 */
+.post-form h3 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #2d2d2d;
+    margin-bottom: 1.5rem;
+    position: relative;
+    padding-left: 2rem;
+}
+
+.post-form h3::before {
+    content: '✍️';
+    position: absolute;
+    left: 0;
+    font-size: 1.6rem;
+}
+
+/* 按钮图标 */
+.btn-primary::after {
+    content: '🚀';
+    margin-left: 0.8rem;
+}
+
+/* 搜索框图标美化 */
+.bi-search {
+    font-size: 1.2em;
+    color: #6c757d;
+}
+/* 调整聊天框大小 */
+#postContent {
+    width: 100%; /* 占满容器宽度 */
+    height: 120px; /* 固定高度，约5行 */
+    resize: vertical; /* 允许垂直调整大小 */
+    padding: 10px; /* 内边距 */
+    border-radius: 8px; /* 圆角边框 */
+    border: 1px solid #ccc; /* 边框样式 */
+}
+
+/* 确保容器布局正常 */
+.post-input-container {
+    position: relative; /* 保持表情按钮定位 */
+    display: flex;
+    align-items: flex-start;
+}
+
+/* 表情按钮样式（避免与文本框重叠） */
+.emoji-btn-post {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+}

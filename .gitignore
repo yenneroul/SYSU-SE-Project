@@ -5,7 +5,6 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
-
 # C extensions
 *.so
 
@@ -175,6 +174,7 @@ test/
 tests/__pycache__/
 
 __pycache__/
-*.pyc
 # 项目特定的忽略文件
-# 如果你有特殊的配置文件或数据文件，在这里添加
+# 如果你有特殊的配置文件或数据文件，在这里添加*.pyc
+__pycache__/
+*.pyc
